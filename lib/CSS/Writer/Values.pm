@@ -16,7 +16,7 @@ class CSS::Writer::Values {
              $str.comb.map({
                  when /<CSS::Grammar::CSS3::stringchar-regular>/ {$_}
                  when "'" {"\\'"}
-                 default { .ord.fmt("\\%X") }
+                 default { .ord.fmt("\\%X ") }
              }),
              "'");
     }
@@ -26,8 +26,13 @@ class CSS::Writer::Values {
         [~] $ident.comb.map({
             when /<CSS::Grammar::CSS3::nmreg>/    { $_ };
             when /<CSS::Grammar::CSS3::nonascii>/ { $_ };
-            default { .ord.fmt("\\%X") }
+            default { .ord.fmt("\\%X ") }
         });
+    }
+
+    method write-op(Str $_) {
+        when ',' {", "}
+        default  {$_}
     }
 
     method write-expr( $terms ) {
@@ -36,7 +41,7 @@ class CSS::Writer::Values {
             die "malformed term: {.perl}"
                 if @_guff;
             given $name {
-                when 'operator' {$val}
+                when 'operator' {$.write-op($val)}
                 when 'term'     {$.write($val)}
                 default { die "unhandled $name term: {.perl}" };
             }
