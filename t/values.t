@@ -18,7 +18,7 @@ my $grammar-actions = CSS::Grammar::Actions.new(:verbose);
 my $module-actions = CSS::Module::CSS3::Actions.new(:verbose);
 my $draft-actions = CSS::Drafts::CSS3::Actions.new(:verbose);
 
-for ( 't/compat.json'.IO.lines ) {
+for ( 't/values.json'.IO.lines ) {
 
     next if .substr(0,2) eq '//';
 

@@ -1,0 +1,37 @@
+// See http://dev.w3.org/csswg/cssom/#serializing-css-values
+// <angle>
+[ "angle", "45deg"]
+[ "angle", "3.140rad", { "out" : "3.14rad" } ]
+// <color>
+[ "color", "rgb(10,20,30)", { "out" : "rgb(10, 20, 30)" } ]
+[ "color", "rgb(10% ,20% ,30%)", { "out" : "rgb(26, 51, 77)" } ]
+[ "term", "rgba(10,20,30)", { "out" : "" , "warnings" : "usage: rgba(c,c,c,a) where c is 0..255 or 0%-100% and a is 0-1 or 0%-100%", "grammar" : { "out" : "rgba(10, 20, 30)", "warnings" : null } } ]
+[ "term", "rgba(10,20,30,.5)", { "out" : "rgba(10, 20, 30, 0.5)" } ]
+[ "term", "rgba(10%,20%,30%,.5)", { "out" : "rgba(26, 51, 77, 0.5)", "grammar" : { "out" : "rgba(10%, 20%, 30%, 0.5)" } } ]
+// <counter> <counters>
+//[ "term" , "counter(section)" ]
+//[ "term" , "counters(section)" ]
+//[ "term" , "counters(toc '.')" ]
+// <length>
+[ "length", "2.5px" ]
+[ "length", "4.0Em", { "out" : "4em" }  ]
+// <frequency>
+[ "frequency", "45hz" ]
+// [ "frequency", ".1Khz", { "out" : "100hz" } ]
+// <identifier>
+//[ "identifier", "Hi\\021 there", { "out" : "Hi!there" } ] 
+// <percentage>
+[ "term", "10%" ]
+[ "term", "10.0%", { "out" : "10%" } ]
+[ "term", "12.50%", { "out" : "12.5%" } ]
+// <resolution>
+[ "term", "45dPi", { "out" : "45dpi", "grammar" : { "parse" : "", "out" : "" } } ]
+// <string>
+[ "term", "'yay\\021'", { "out" : "'yay!'" } ]
+[ "term", "'yip\\'pee\\721yi'", { "out" : "'yip\\'pee\\721 yi'" } ]
+// <time>
+[ "time", "45s" ]
+// [ "time", "450ms" , { "out" : ".45s" } ]
+// <uri>
+[ "term", "url( 'dog.jpg' )", { "out" : "url('dog.jpg')" } ]
+[ "term", "url(cat.gif)", { "out" : "url('cat.gif')" } ]
