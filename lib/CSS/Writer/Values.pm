@@ -51,13 +51,16 @@ class CSS::Writer::Values {
     proto write-value(Str $;; Any $ast, Str $units? --> Str) {*}
 
 
-    multi method write-value( CSSValue::ColorComponent, Any $ast, 'rgb' ) {
-        
-        'rgb stub';
+    multi method write-value( CSSValue::ColorComponent, Hash $ast, 'rgb' ) {
+        sprintf 'rgb(%d, %d, %d)', $ast<r g b>;
     }
 
     multi method write-value( CSSValue::ColorComponent, Any $ast, 'rgba' ) {
-        'rgba stub';
+
+        return $.write-value( CSSValue::ColorComponent, $ast, 'rgb' )
+            if $ast<a> == 1.0;
+
+        sprintf 'rgba(%d, %d, %d, %s)', $ast<r g b a>;
     }
 
     multi method write-value( CSSValue::Component;; Str $ast ) {
