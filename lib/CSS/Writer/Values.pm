@@ -11,7 +11,7 @@ class CSS::Writer::Values {
         return ($int == $num ?? $int !! $num) ~ ($units.defined ?? $units.lc !! '');
     }
 
-    method write-str( Str $str) {
+    method write-string( Str $str) {
         [~] ("'",
              $str.comb.map({
                  when /<CSS::Grammar::CSS3::stringchar-regular>/ {$_}
@@ -96,15 +96,15 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::StringComponent;; Str $ast, Any $_units? ) {
-        $.write-str($ast);
+        $.write-string($ast);
     }
 
     multi method write-value( CSSValue::StyleDeclaration;; Any $ast, Str $units? ) {
         ...
     }
 
-    multi method write-value( CSSValue::URLComponent;; Str $ast, Str $units? ) {
-        ...
+    multi method write-value( CSSValue::URLComponent;; Str $ast, Any $units? ) {
+        sprintf "url(%s)", $.write-string( $ast );
     }
 
     multi method write-value( CSSValue::NumberComponent;; Numeric $ast, Any $units? ) {
