@@ -42,8 +42,7 @@ class CSS::Writer::Values {
                 if @_guff;
             given $name {
                 when 'operator' {$.write-op($val)}
-                when 'term'     {$.write($val)}
-                default { die "unhandled $name term: {.perl}" };
+                default     {$.write($val)}
             }
         })
     }
@@ -67,12 +66,12 @@ class CSS::Writer::Values {
         ...
     }
 
-    multi method write-value( CSSValue::IdentifierComponent;; Str $ast ) {
-        $ast;
+    multi method write-value( CSSValue::IdentifierComponent;; Str $ast, Any $_units ) {
+        $.write-ident( $ast );
     }
 
-    multi method write-value( CSSValue::KeywordComponent;; Str $ast ) {
-        $ast.lc;
+    multi method write-value( CSSValue::KeywordComponent;; Str $ast, Any $_units ) {
+        $ast;
     }
 
     multi method write-value( CSSValue::LengthComponent;; Numeric $ast, Str $units? ) {
@@ -83,23 +82,23 @@ class CSS::Writer::Values {
         ...
     }
 
-    multi method write-value( CSSValue::PercentageComponent;; Numeric $ast, Any $units ) {
+    multi method write-value( CSSValue::PercentageComponent;; Numeric $ast, Any $_units ) {
         $.write-num( $ast, '%' );
     }
 
-    multi method write-value( CSSValue::Property;; Any $ast, Str $units? ) {
-        ...
+    multi method write-value( CSSValue::Property;; Any $ast, Any $_units? ) {
+        sprintf '%s : %s%s;', $.write-ident( $ast<property> ), $.write-expr( $ast<expr> ), $ast<prio> ?? ' !important' !! '';
     }
 
-    multi method write-value( CSSValue::PropertyList;; Any $ast, Str $units? ) {
-        ...
+    multi method write-value( CSSValue::PropertyList;; Any $ast, Any $_units? ) {
+        'tba property-list';
     }
 
     multi method write-value( CSSValue::StringComponent;; Str $ast, Any $_units? ) {
         $.write-string($ast);
     }
 
-    multi method write-value( CSSValue::StyleDeclaration;; Any $ast, Str $units? ) {
+    multi method write-value( CSSValue::StyleDeclaration;; Any $ast, Any $units? ) {
         ...
     }
 
@@ -120,7 +119,11 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::FrequencyComponent;; Numeric $ast, Str $units ) {
-        $.write-num( $ast, $units );
+        # 'The frequency in hertz serialized as per <number> followed by the literal string "hz"'
+        # - http://dev.w3.org/csswg/cssom/#serializing-css-values
+        return $units eq 'khz'
+            ?? $.write-num($ast * 1000, 'hz')
+            !! $.write-num( $ast, $units );
     }
 
     multi method write-value( CSSValue::FunctionComponent;; List $ast, Any $units? ) {
