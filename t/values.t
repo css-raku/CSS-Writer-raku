@@ -18,7 +18,7 @@ my $grammar-actions = CSS::Grammar::Actions.new(:verbose);
 my $module-actions = CSS::Module::CSS3::Actions.new(:verbose);
 my $draft-actions = CSS::Drafts::CSS3::Actions.new(:verbose);
 
-for ( 't/values.json'.IO.lines ) {
+for 't/values.json'.IO.lines {
 
     next if .substr(0,2) eq '//';
 
@@ -33,11 +33,14 @@ for ( 't/values.json'.IO.lines ) {
         my ($class, $actions) = @$a;
 
         my %expected = %$opts, %( $opts{$suite} // {} );
+
+        if my $skip = %expected<skip> {
+            skip $skip;
+            next;
+        }
+
         %expected<ast> = Any;
         my $expected-out = %expected<out>;
-
-        $actions.reset if $actions.can('reset');
-        $actions.verbose = True;
 
         temp $/ = CSS::Grammar::Test::parse-tests($class, $input, :$rule, :$actions, :%expected, :$suite);
 
