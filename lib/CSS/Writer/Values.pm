@@ -6,7 +6,10 @@ class CSS::Writer::Values {
 
     use CSS::Grammar::AST :CSSValue;
 
-    method write-num( Numeric $num, Str $units? ) {
+    multi method write-num( 1, 'em' ) { 'em' }
+    multi method write-num( 1, 'ex' ) { 'ex' }
+
+    multi method write-num( Numeric $num, Str $units? ) {
         my $int = $num.Int;
         return ($int == $num ?? $int !! $num) ~ ($units.defined ?? $units.lc !! '');
     }
@@ -36,89 +39,101 @@ class CSS::Writer::Values {
     }
 
     method write-expr( $terms ) {
+        my $space = 0;
         [~] @$terms.map({
             my ($name, $val, @_guff) = .kv;
             die "malformed term: {.perl}"
                 if @_guff;
             given $name {
-                when 'operator' {$.write-op($val)}
-                default     {$.write($val)}
+                when 'operator' {$space = 0; $.write-op($val)}
+                default         {($space++ ?? ' ' !! '') ~ $.write($val)}
             }
         })
     }
 
-    proto write-value(Str $;; Any $ast, Str $units? --> Str) {*}
+    proto write-color(Hash $ast, Str $units --> Str) {*}
 
-
-    multi method write-value( CSSValue::ColorComponent, Hash $ast, 'rgb' ) {
+    multi method write-color(Hash $ast, 'rgb') {
         sprintf 'rgb(%d, %d, %d)', $ast<r g b>;
     }
 
-    multi method write-value( CSSValue::ColorComponent, Any $ast, 'rgba' ) {
+    multi method write-color( Hash $ast, 'rgba' ) {
 
-        return $.write-value( CSSValue::ColorComponent, $ast, 'rgb' )
+        return $.write-color( $ast, 'rgb' )
             if $ast<a> == 1.0;
 
         sprintf 'rgba(%d, %d, %d, %s)', $ast<r g b a>;
+    }
+
+    multi method write-color( Any $color, Any $units ) is default {
+        die "unable to handle color: {$color.perl}, units: {$units.perl}"
+    }
+
+    proto write-value(Str $;; Any $ast, :$units? --> Str) {*}
+
+    multi method write-value( CSSValue::ColorComponent, Hash $ast, :$units ) {
+        note {color => $ast, units => $units}.perl;
+        $.write-color( $ast, $units);
     }
 
     multi method write-value( CSSValue::Component;; Str $ast ) {
         ...
     }
 
-    multi method write-value( CSSValue::IdentifierComponent;; Str $ast, Any $_units ) {
+    multi method write-value( CSSValue::IdentifierComponent;; Str $ast) {
         $.write-ident( $ast );
     }
 
-    multi method write-value( CSSValue::KeywordComponent;; Str $ast, Any $_units ) {
+    multi method write-value( CSSValue::KeywordComponent;; Str $ast ) {
         $ast;
     }
 
-    multi method write-value( CSSValue::LengthComponent;; Numeric $ast, Str $units? ) {
+    multi method write-value( CSSValue::LengthComponent;; Numeric $ast, Str :$units ) {
         $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::Map;; Any $ast, Str $units? ) {
+    multi method write-value( CSSValue::Map;; Any $ast ) {
         ...
     }
 
-    multi method write-value( CSSValue::PercentageComponent;; Numeric $ast, Any $_units ) {
+    multi method write-value( CSSValue::PercentageComponent;; Numeric $ast ) {
         $.write-num( $ast, '%' );
     }
 
-    multi method write-value( CSSValue::Property;; Any $ast, Any $_units? ) {
-        sprintf '%s : %s%s;', $.write-ident( $ast<property> ), $.write-expr( $ast<expr> ), $ast<prio> ?? ' !important' !! '';
+    multi method write-value( CSSValue::Property;; Any $ast ) {
+        note {property => $ast};
+        sprintf '%s: %s%s;', $.write-ident( $ast<property> ), $.write-expr( $ast<expr> ), $ast<prio> ?? ' !important' !! '';
     }
 
-    multi method write-value( CSSValue::PropertyList;; Any $ast, Any $_units? ) {
+    multi method write-value( CSSValue::PropertyList;; Any $ast ) {
         'tba property-list';
     }
 
-    multi method write-value( CSSValue::StringComponent;; Str $ast, Any $_units? ) {
+    multi method write-value( CSSValue::StringComponent;; Str $ast ) {
         $.write-string($ast);
     }
 
-    multi method write-value( CSSValue::StyleDeclaration;; Any $ast, Any $units? ) {
+    multi method write-value( CSSValue::StyleDeclaration;; Any $ast ) {
         ...
     }
 
-    multi method write-value( CSSValue::URLComponent;; Str $ast, Any $units? ) {
+    multi method write-value( CSSValue::URLComponent;; Str $ast ) {
         sprintf "url(%s)", $.write-string( $ast );
     }
 
-    multi method write-value( CSSValue::NumberComponent;; Numeric $ast, Any $units? ) {
+    multi method write-value( CSSValue::NumberComponent;; Numeric $ast ) {
         $.write-num( $ast );
     }
 
-    multi method write-value( CSSValue::IntegerComponent;; Int $ast, Str $units? ) {
+    multi method write-value( CSSValue::IntegerComponent;; Int $ast ) {
         $.write-num( $ast );
     }
 
-    multi method write-value( CSSValue::AngleComponent;; Numeric $ast, Str $units ) {
+    multi method write-value( CSSValue::AngleComponent;; Numeric $ast, Str :$units ) {
         $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::FrequencyComponent;; Numeric $ast, Str $units ) {
+    multi method write-value( CSSValue::FrequencyComponent;; Numeric $ast, Str :$units ) {
         # 'The frequency in hertz serialized as per <number> followed by the literal string "hz"'
         # - http://dev.w3.org/csswg/cssom/#serializing-css-values
         return $units eq 'khz'
@@ -126,21 +141,21 @@ class CSS::Writer::Values {
             !! $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::FunctionComponent;; List $ast, Any $units? ) {
+    multi method write-value( CSSValue::FunctionComponent;; List $ast ) {
         my ($name, $params) = @$ast; 
         sprintf '%s(%s)', $.write-ident( $name<ident> ), $.write-expr( $params<args> );
     }
 
-    multi method write-value( CSSValue::ResolutionComponent;; Numeric $ast, Str $units ) {
+    multi method write-value( CSSValue::ResolutionComponent;; Numeric $ast, Str :$units ) {
         $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::TimeComponent;; Numeric $ast, Str $units ) {
+    multi method write-value( CSSValue::TimeComponent;; Numeric $ast, Str :$units ) {
         $.write-num( $ast, $units );
     }
 
-    multi method write-value( Any $type, Any $ast, Any $units ) is default {
-        die "unable to find delegate for type: {$type.perl}, units: {$units.perl}"
+    multi method write-value( Any $type, Any $ast ) is default {
+        die "unable to handle value type: {$type.perl}, ast: {$ast.perl}"
     }
 
 }

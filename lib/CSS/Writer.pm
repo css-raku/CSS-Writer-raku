@@ -34,10 +34,10 @@ class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
         my $writer-class;
 
         if $type = CSS::Grammar::AST::CSSObject( $type-val ) {
-            $.write-object( $type, $data, $units );
+            $.write-object( $type, $data, :$units );
         }
         elsif $type = CSS::Grammar::AST::CSSValue( $type-val ) {
-            $.write-value( $type, $data, $units );
+            $.write-value( $type, $data, :$units );
         }
     }
 
