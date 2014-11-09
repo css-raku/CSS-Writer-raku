@@ -100,13 +100,12 @@ class CSS::Writer::Values {
         $.write-num( $ast, '%' );
     }
 
-    multi method write-value( CSSValue::Property;; Any $ast ) {
-        note {property => $ast};
-        sprintf '%s: %s%s;', $.write-ident( $ast<property> ), $.write-expr( $ast<expr> ), $ast<prio> ?? ' !important' !! '';
+    multi method write-value( CSSValue::Property;; Hash $ast, :$indent=0 ) {
+        sprintf '%s%s: %s%s;', ' ' x $indent, $.write-ident( $ast<property> ), $.write-expr( $ast<expr> ), $ast<prio> ?? ' !important' !! '';
     }
 
-    multi method write-value( CSSValue::PropertyList;; Any $ast ) {
-        'tba property-list';
+    multi method write-value( CSSValue::PropertyList;; List $ast ) {
+        join("\n", $ast.map: {$.write-value( CSSValue::Property, $_, :indent(2) )});
     }
 
     multi method write-value( CSSValue::StringComponent;; Str $ast ) {

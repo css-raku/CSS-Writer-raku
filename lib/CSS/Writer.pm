@@ -37,6 +37,7 @@ class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
             $.write-object( $type, $data, :$units );
         }
         elsif $type = CSS::Grammar::AST::CSSValue( $type-val ) {
+            note {type => $type, ast => $data, units => $units}.perl;
             $.write-value( $type, $data, :$units );
         }
     }

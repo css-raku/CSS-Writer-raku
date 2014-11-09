@@ -44,3 +44,5 @@
 [ "declaration", " Color : red ;", { "out" : "color: rgb(255, 0, 0);" , "grammar" : { "out" : "color: red;" } } ]
 [ "declaration", "word-spacing: normal !important;" ]
 [ "declaration", "margin: 2px 1em", { "out" : "margin: 2px em;" } ]
+[ "declaration", "margin: 2px 1em", { "out" : "margin: 2px em;" } ]
+[ "declaration-list", "font-size:0px;z-index: -9;position:absolute;left:-999px", { "out" : "  font-size: 0px;\n  z-index: -9;\n  position: absolute;\n  left: -999px;" } ]
