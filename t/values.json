@@ -10,7 +10,8 @@
 [ "term", "rgba(10,20,30)", { "out" : "" , "warnings" : "usage: rgba(c,c,c,a) where c is 0..255 or 0%-100% and a is 0-1 or 0%-100%", "grammar" : { "out" : "rgba(10, 20, 30)", "warnings" : null } } ]
 [ "term", "rgba(10,20,30,.5)", { "out" : "rgba(10, 20, 30, 0.5)" } ]
 [ "term", "rgba(10%,20%,30%,.5)", { "out" : "rgba(26, 51, 77, 0.5)", "grammar" : { "out" : "rgba(10%, 20%, 30%, 0.5)" } } ]
-[ "term", "rgba(10%,20%,30%,1)", { "out" : "rgb(26, 51, 77)", "grammar" : { "out" : "rgba(10%, 20%, 30%, 1)" } } ]
+[ "term", "hsl(120,20%,30%)", { "out" : "hsl(120, 20%, 30%)" } ]
+[ "term", "hsla(120,20%,30%,70%)", { "out" : "hsla(120, 20%, 30%, 70%)" } ]
 // <counter> <counters>
 //[ "term" , "counter(section)" ]
 //[ "term" , "counters(section)" ]
@@ -22,7 +23,7 @@
 [ "frequency", "45hz" ]
 [ "frequency", ".1Khz", { "out" : "100hz" } ]
 // <identifier>
-[ "identifier", "Hi\\021 there", { "out" : "Hi\\21 there", "grammar" : { "skip" : "n/a to grammars" } } ] 
+[ "identifier", "Hi\\021 th\\0065 re", { "out" : "Hi\\21 there", "grammar" : { "skip" : "n/a to grammars" } } ] 
 // <percentage>
 [ "term", "10%" ]
 [ "term", "10.0%", { "out" : "10%" } ]

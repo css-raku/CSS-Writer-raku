@@ -54,7 +54,7 @@ class CSS::Writer::Values {
     proto write-color(Hash $ast, Str $units --> Str) {*}
 
     multi method write-color(Hash $ast, 'rgb') {
-        sprintf 'rgb(%d, %d, %d)', $ast<r g b>;
+        sprintf 'rgb(%s, %s, %s)', <r g b>.map: {$.write( $ast{$_} )};
     }
 
     multi method write-color( Hash $ast, 'rgba' ) {
@@ -62,7 +62,15 @@ class CSS::Writer::Values {
         return $.write-color( $ast, 'rgb' )
             if $ast<a> == 1.0;
 
-        sprintf 'rgba(%d, %d, %d, %s)', $ast<r g b a>;
+        sprintf 'rgba(%s, %s, %s, %s)', <r g b a>.map: {$.write( $ast{$_} )};
+    }
+
+    multi method write-color(Hash $ast, 'hsl') {
+        sprintf 'hsl(%d, %s, %s)', $ast<h>, <s l>.map: {$.write( $ast{$_} )};
+    }
+
+    multi method write-color(Hash $ast, 'hsla') {
+        sprintf 'hsla(%d, %s, %s, %s)', $ast<h>, <s l a>.map: {$.write( $ast{$_} )};
     }
 
     multi method write-color( Any $color, Any $units ) is default {
@@ -72,7 +80,6 @@ class CSS::Writer::Values {
     proto write-value(Str $;; Any $ast, :$units? --> Str) {*}
 
     multi method write-value( CSSValue::ColorComponent, Hash $ast, :$units ) {
-        note {color => $ast, units => $units}.perl;
         $.write-color( $ast, $units);
     }
 
