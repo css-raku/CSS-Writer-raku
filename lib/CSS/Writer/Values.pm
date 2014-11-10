@@ -77,69 +77,65 @@ class CSS::Writer::Values {
         die "unable to handle color: {$color.perl}, units: {$units.perl}"
     }
 
-    proto write-value(Str $;; Any $ast, :$units? --> Str) {*}
+    proto write-value(Str $, Any $ast, :$units? --> Str) {*}
 
     multi method write-value( CSSValue::ColorComponent, Hash $ast, :$units ) {
         $.write-color( $ast, $units);
     }
 
-    multi method write-value( CSSValue::Component;; Str $ast ) {
+    multi method write-value( CSSValue::Component, Str $ast ) {
         ...
     }
 
-    multi method write-value( CSSValue::IdentifierComponent;; Str $ast) {
+    multi method write-value( CSSValue::IdentifierComponent, Str $ast) {
         $.write-ident( $ast );
     }
 
-    multi method write-value( CSSValue::KeywordComponent;; Str $ast ) {
+    multi method write-value( CSSValue::KeywordComponent, Str $ast ) {
         $ast;
     }
 
-    multi method write-value( CSSValue::LengthComponent;; Numeric $ast, Str :$units ) {
+    multi method write-value( CSSValue::LengthComponent, Numeric $ast, Str :$units ) {
         $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::Map;; Any $ast ) {
+    multi method write-value( CSSValue::Map, Any $ast ) {
         ...
     }
 
-    multi method write-value( CSSValue::PercentageComponent;; Numeric $ast ) {
+    multi method write-value( CSSValue::PercentageComponent, Numeric $ast ) {
         $.write-num( $ast, '%' );
     }
 
-    multi method write-value( CSSValue::Property;; Hash $ast, :$indent=0 ) {
+    multi method write-value( CSSValue::Property, Hash $ast, :$indent=0 ) {
         sprintf '%s%s: %s%s;', ' ' x $indent, $.write-ident( $ast<property> ), $.write-expr( $ast<expr> ), $ast<prio> ?? ' !important' !! '';
     }
 
-    multi method write-value( CSSValue::PropertyList;; List $ast ) {
+    multi method write-value( CSSValue::PropertyList, List $ast ) {
         join("\n", $ast.map: {$.write-value( CSSValue::Property, $_, :indent(2) )});
     }
 
-    multi method write-value( CSSValue::StringComponent;; Str $ast ) {
+    multi method write-value( CSSValue::StringComponent, Str $ast ) {
         $.write-string($ast);
     }
 
-    multi method write-value( CSSValue::StyleDeclaration;; Any $ast ) {
-        ...
-    }
-
-    multi method write-value( CSSValue::URLComponent;; Str $ast ) {
+    multi method write-value( CSSValue::URLComponent, Str $ast ) {
         sprintf "url(%s)", $.write-string( $ast );
     }
 
-    multi method write-value( CSSValue::NumberComponent;; Numeric $ast ) {
+    multi method write-value( CSSValue::NumberComponent, Numeric $ast ) {
         $.write-num( $ast );
     }
 
-    multi method write-value( CSSValue::IntegerComponent;; Int $ast ) {
+    multi method write-value( CSSValue::IntegerComponent, Int $ast ) {
         $.write-num( $ast );
     }
 
-    multi method write-value( CSSValue::AngleComponent;; Numeric $ast, Str :$units ) {
+    multi method write-value( CSSValue::AngleComponent, Numeric $ast, Str :$units ) {
         $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::FrequencyComponent;; Numeric $ast, Str :$units ) {
+    multi method write-value( CSSValue::FrequencyComponent, Numeric $ast, Str :$units ) {
         # 'The frequency in hertz serialized as per <number> followed by the literal string "hz"'
         # - http://dev.w3.org/csswg/cssom/#serializing-css-values
         return $units eq 'khz'
@@ -147,16 +143,16 @@ class CSS::Writer::Values {
             !! $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::FunctionComponent;; List $ast ) {
+    multi method write-value( CSSValue::FunctionComponent, List $ast ) {
         my ($name, $params) = @$ast; 
         sprintf '%s(%s)', $.write-ident( $name<ident> ), $.write-expr( $params<args> );
     }
 
-    multi method write-value( CSSValue::ResolutionComponent;; Numeric $ast, Str :$units ) {
+    multi method write-value( CSSValue::ResolutionComponent, Numeric $ast, Str :$units ) {
         $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::TimeComponent;; Numeric $ast, Str :$units ) {
+    multi method write-value( CSSValue::TimeComponent, Numeric $ast, Str :$units ) {
         $.write-num( $ast, $units );
     }
 
