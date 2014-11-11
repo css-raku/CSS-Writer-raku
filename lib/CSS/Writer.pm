@@ -21,12 +21,6 @@ class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
             $units := $ast.units;
             $data := $ast;
         }
-        elsif $ast.isa('Hash') && ($ast<type>:exists) {
-            # verbose expanded token
-            $type-val := ~$ast<type>;
-            $units := $ast<units>;
-            $data := $ast<val>;
-        }
 
         return '' unless $type-val.defined;
 
@@ -38,6 +32,10 @@ class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
         }
         elsif $type = CSS::Grammar::AST::CSSValue( $type-val ) {
             $.write-value( $type, $data, :$units );
+        }
+        else {
+            note "unknwon type: $type";
+            '';
         }
     }
 

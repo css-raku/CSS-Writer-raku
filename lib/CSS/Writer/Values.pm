@@ -51,6 +51,10 @@ class CSS::Writer::Values {
         })
     }
 
+    method write-args( $args ) {
+        join(', ', @$args.map({ $.write-expr($_) }) );
+    }
+
     proto write-color(Hash $ast, Str $units --> Str) {*}
 
     multi method write-color(Hash $ast, 'rgb') {
@@ -108,7 +112,8 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::Property, Hash $ast, :$indent=0 ) {
-        sprintf '%s%s: %s%s;', ' ' x $indent, $.write-ident( $ast<property> ), $.write-expr( $ast<expr> ), $ast<prio> ?? ' !important' !! '';
+        my $prio = $ast<prio> ?? ' !important' !! '';
+        sprintf '%s%s: %s%s;', ' ' x $indent, $.write-ident( $ast<property> ), $.write-expr( $ast<expr> ), $prio;
     }
 
     multi method write-value( CSSValue::PropertyList, List $ast ) {
@@ -143,9 +148,12 @@ class CSS::Writer::Values {
             !! $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::FunctionComponent, List $ast ) {
-        my ($name, $params) = @$ast; 
-        sprintf '%s(%s)', $.write-ident( $name<ident> ), $.write-expr( $params<args> );
+    multi method write-value( CSSValue::FunctionComponent, Hash $ast ) {
+        sprintf '%s(%s)', $.write-ident( $ast<ident> ), do {
+            when $ast<args>:exists {$.write-args( $ast<args> )}
+            when $ast<expr>:exists {$.write-expr( $ast<expr> )}
+            default {''};
+        }
     }
 
     multi method write-value( CSSValue::ResolutionComponent, Numeric $ast, Str :$units ) {
@@ -154,6 +162,10 @@ class CSS::Writer::Values {
 
     multi method write-value( CSSValue::TimeComponent, Numeric $ast, Str :$units ) {
         $.write-num( $ast, $units );
+    }
+
+    multi method write-value( CSSValue::QnameComponent, Hash $ast ) {
+        $.write-ident( $ast<element-name> );
     }
 
     multi method write-value( Any $type, Any $ast ) is default {
