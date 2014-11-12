@@ -33,22 +33,18 @@ class CSS::Writer::Values {
         });
     }
 
-    method write-op(Str $_) {
-        when ',' {", "}
-        default  {$_}
-    }
-
     method write-expr( $terms ) {
-        my $space = 0;
+        my $first = True;
         [~] @$terms.map({
             my ($name, $val, @_guff) = .kv;
             die "malformed term: {.perl}"
                 if @_guff;
-            given $name {
-                when 'operator' {$space = 0; $.write-op($val)}
-                default         {($space++ ?? ' ' !! '') ~ $.write($val)}
-            }
-        })
+
+            my $sp = $first || $val.type eq CSSValue::OperatorComponent ?? '' !! ' ';
+            $first = False;
+
+            $sp ~ $.write($val);
+        });
     }
 
     method write-args( $args ) {
@@ -105,6 +101,10 @@ class CSS::Writer::Values {
 
     multi method write-value( CSSValue::Map, Any $ast ) {
         ...
+    }
+
+    multi method write-value(CSSValue::OperatorComponent, Str $_) {
+        $_;
     }
 
     multi method write-value( CSSValue::PercentageComponent, Numeric $ast ) {
