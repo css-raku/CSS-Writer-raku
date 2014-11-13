@@ -36,14 +36,11 @@ class CSS::Writer::Values {
     method write-expr( $terms ) {
         my $first = True;
         [~] @$terms.map({
-            my ($name, $val, @_guff) = .kv;
-            die "malformed term: {.perl}"
-                if @_guff;
 
-            my $sp = $first || $val.type eq CSSValue::OperatorComponent ?? '' !! ' ';
+            my $sp = $first || .{ CSSValue::OperatorComponent } ?? '' !! ' ';
             $first = False;
 
-            $sp ~ $.write($val);
+            $sp ~ $.write($_);
         });
     }
 
@@ -54,24 +51,23 @@ class CSS::Writer::Values {
     proto write-color(List $ast, Str $units --> Str) {*}
 
     multi method write-color(List $ast, 'rgb') {
-        note {rgb => $ast}.perl;
-        sprintf 'rgb(%s, %s, %s)', $ast.map: {$.write( $_ )};
+        sprintf 'rgb(%s, %s, %s)', $ast.map: { $.write( $_ )};
     }
 
     multi method write-color( List $ast, 'rgba' ) {
 
-        return $.write-color( $ast, 'rgb' )
-            if $ast[3] == 1.0;
+        return $.write-color( [ $ast[0..2] ], 'rgb' )
+            if $ast[3]<num> == 1.0;
 
         sprintf 'rgba(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
     }
 
     multi method write-color(List $ast, 'hsl') {
-        sprintf 'hsl(%d, %s, %s)', $ast[0], (1, 2).map: {$.write( $ast[$_] )};
+        sprintf 'hsl(%s, %s, %s)', $ast.map: {$.write( $_ )};
     }
 
     multi method write-color(List $ast, 'hsla') {
-        sprintf 'hsla(%d, %s, %s, %s)', $ast[0], (1,2,3).map: {$.write( $ast[$_] )};
+        sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
     }
 
     multi method write-color( Any $color, Any $units ) is default {
