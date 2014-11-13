@@ -21,6 +21,15 @@ class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
             $units := $ast.units;
             $data := $ast;
         }
+        elsif $ast.isa(Hash) || $ast.isa(Pair) {
+            # it's a token represented by a type/value pair
+            my ($type, $data, @_guff) = $ast.kv;
+            die "malformed term: {.perl}"
+                if @_guff;
+
+            my $token = CSS::Grammar::AST.token( $data, :$type);
+            return $.write( $token );
+        }
 
         return '' unless $type-val.defined;
 
