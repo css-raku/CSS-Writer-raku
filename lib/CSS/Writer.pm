@@ -8,42 +8,47 @@ use CSS::Writer::Values;
 
 class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
 
-    method write($ast) {
-        my $type-val;
-        my $units;
-        my $data;
+    method write($ast, :$item) {
+
+        my $token;
 
         return '' unless $ast.defined;
 
-        if $ast.can('type') {
-            # compact token, performing the CSS::Grammar::AST::Token rule
-            $type-val := ~$ast.type;
-            $units := $ast.units;
-            $data := $ast;
+        if $item {
+            my $data = $ast{ $item }
+                // die "node does not contain: $item";
+            $token = CSS::Grammar::AST.token( $data, :type($item));
         }
-        elsif $ast.isa(Hash) || $ast.isa(Pair) {
+        elsif $ast.can('type') {
+            # already tokenised
+            $token = $ast;
+        }
+        elsif ($ast.isa(Hash) || $ast.isa(Pair)) {
             # it's a token represented by a type/value pair
             my ($type, $data, @_guff) = $ast.kv;
-            die "malformed term: {.perl}"
-                if @_guff;
+                die "node contains multple tokens: {$ast.keys}"
+                    if @_guff;
 
-            my $token = CSS::Grammar::AST.token( $data, :$type);
-            return $.write( $token );
+            $token = CSS::Grammar::AST.token( $data, :$type);
         }
 
-        return '' unless $type-val.defined;
+        unless $token.defined {
+            note "unable to determine token: $ast";
+            return '';
+        }
 
         my $type;
-        my $writer-class;
+        my $type-name := ~$token.type;
+        my $units := $token.units;
 
-        if $type = CSS::Grammar::AST::CSSObject( $type-val ) {
-            $.write-object( $type, $data, :$units );
+        if $type = CSS::Grammar::AST::CSSObject( $type-name ) {
+            $.write-object( $type, $token, :$units );
         }
-        elsif $type = CSS::Grammar::AST::CSSValue( $type-val ) {
-            $.write-value( $type, $data, :$units );
+        elsif $type = CSS::Grammar::AST::CSSValue( $type-name ) {
+            $.write-value( $type, $token, :$units );
         }
         else {
-            note "unknwon type: $type";
+            note "unknown type: $type";
             '';
         }
     }

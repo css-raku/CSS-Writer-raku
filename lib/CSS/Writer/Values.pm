@@ -24,30 +24,6 @@ class CSS::Writer::Values {
              "'");
     }
 
-    method write-ident( Str $ident ) {
-        $ident;
-        [~] $ident.comb.map({
-            when /<CSS::Grammar::CSS3::nmreg>/    { $_ };
-            when /<CSS::Grammar::CSS3::nonascii>/ { $_ };
-            default { .ord.fmt("\\%X ") }
-        });
-    }
-
-    method write-expr( $terms ) {
-        my $first = True;
-        [~] @$terms.map({
-
-            my $sp = $first || .{ CSSValue::OperatorComponent } ?? '' !! ' ';
-            $first = False;
-
-            $sp ~ $.write($_);
-        });
-    }
-
-    method write-args( $args ) {
-        join(', ', @$args.map({ $.write-expr($_) }) );
-    }
-
     proto write-color(List $ast, Str $units --> Str) {*}
 
     multi method write-color(List $ast, 'rgb') {
@@ -85,7 +61,11 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::IdentifierComponent, Str $ast) {
-        $.write-ident( $ast );
+        [~] $ast.comb.map({
+            when /<CSS::Grammar::CSS3::nmreg>/    { $_ };
+            when /<CSS::Grammar::CSS3::nonascii>/ { $_ };
+            default { .ord.fmt("\\%X ") }
+        });
     }
 
     multi method write-value( CSSValue::KeywordComponent, Str $ast ) {
@@ -110,7 +90,7 @@ class CSS::Writer::Values {
 
     multi method write-value( CSSValue::Property, Hash $ast, :$indent=0 ) {
         my $prio = $ast<prio> ?? ' !important' !! '';
-        sprintf '%s%s: %s%s;', ' ' x $indent, $.write-ident( $ast<property> ), $.write-expr( $ast<expr> ), $prio;
+        sprintf '%s%s: %s%s;', ' ' x $indent, $.write( $ast, :item<ident> ), $.write( $ast, :item<expr> ), $prio;
     }
 
     multi method write-value( CSSValue::PropertyList, List $ast ) {
@@ -146,11 +126,26 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::FunctionComponent, Hash $ast ) {
-        sprintf '%s(%s)', $.write-ident( $ast<ident> ), do {
-            when $ast<args>:exists {$.write-args( $ast<args> )}
-            when $ast<expr>:exists {$.write-expr( $ast<expr> )}
+        sprintf '%s(%s)', $.write( $ast, :item<ident> ), do {
+            when $ast<args>:exists {$.write( $ast, :item<args> )}
+            when $ast<expr>:exists {$.write( $ast, :item<expr> )}
             default {''};
         }
+    }
+
+    multi method write-value( CSSValue::ArgumentListComponent, List $args ) {
+        join(', ', @$args.map({ $.write($_) }) );
+    }
+
+    multi method write-value( CSSValue::ExpressionComponent, List $terms ) {
+        my $first = True;
+        [~] @$terms.map({
+
+            my $sp = $first || .{ CSSValue::OperatorComponent } ?? '' !! ' ';
+            $first = False;
+
+            $sp ~ $.write($_);
+        });
     }
 
     multi method write-value( CSSValue::ResolutionComponent, Numeric $ast, Str :$units ) {
@@ -162,7 +157,7 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::QnameComponent, Hash $ast ) {
-        $.write-ident( $ast<element-name> );
+        $.write( ident => $ast<element-name> );
     }
 
     multi method write-value( Any $type, Any $ast ) is default {
