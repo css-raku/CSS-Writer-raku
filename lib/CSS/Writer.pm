@@ -8,20 +8,20 @@ use CSS::Writer::Values;
 
 class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
 
-    method write($ast, :$item) {
+    method write($ast, :$token) {
 
-        my $token;
+        my $node;
 
         return '' unless $ast.defined;
 
-        if $item {
-            my $data = $ast{ $item }
-                // die "node does not contain: $item";
-            $token = CSS::Grammar::AST.token( $data, :type($item));
+        if $token {
+            my $data = $ast{ $token }
+                // die "node does not contain: $token";
+            $node = CSS::Grammar::AST.token( $data, :type($token));
         }
         elsif $ast.can('type') {
             # already tokenised
-            $token = $ast;
+            $node = $ast;
         }
         elsif ($ast.isa(Hash) || $ast.isa(Pair)) {
             # it's a token represented by a type/value pair
@@ -29,23 +29,23 @@ class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
                 die "node contains multple tokens: {$ast.keys}"
                     if @_guff;
 
-            $token = CSS::Grammar::AST.token( $data, :$type);
+            $node = CSS::Grammar::AST.token( $data, :$type);
         }
 
-        unless $token.defined {
+        unless $node.defined {
             note "unable to determine token: $ast";
             return '';
         }
 
         my $type;
-        my $type-name := ~$token.type;
-        my $units := $token.units;
+        my $type-name := ~$node.type;
+        my $units := $node.units;
 
         if $type = CSS::Grammar::AST::CSSObject( $type-name ) {
-            $.write-object( $type, $token, :$units );
+            $.write-object( $type, $node, :$units );
         }
         elsif $type = CSS::Grammar::AST::CSSValue( $type-name ) {
-            $.write-value( $type, $token, :$units );
+            $.write-value( $type, $node, :$units );
         }
         else {
             note "unknown type: $type";
