@@ -1,5 +1,5 @@
-{ "css" : "_aBc0 0abc -x\\\"\\' -\\-y temp\\@15\\B0 C", "ast" : { "expr" : [ { "ident" : "_aBc0" }, { "ident" : "0abc" }, { "ident" : "-x\"'" }, {"ident" : "--y" }, {"ident" : "temp@15°C" } ] } }
-{ "css" : "'_aBc0' '0abc' '-x\"\\'' '--y' 'temp@15\\B0 C'", "ast" : { "expr" : [ { "string" : "_aBc0" }, { "string" : "0abc" }, { "string" : "-x\"'" }, {"string" : "--y" }, {"string" : "temp@15°C" } ] } }
+{ "css" : "_aBc0 0abc -x-\\\"-\\'-\\\\ -\\-y temp\\@15\\B0 C", "ast" : { "expr" : [ { "ident" : "_aBc0" }, { "ident" : "0abc" }, { "ident" : "-x-\"-'-\\" }, {"ident" : "--y" }, {"ident" : "temp@15°C" } ] } }
+{ "css" : "'_aBc0' '0abc' '-x-\"-\\'-\\\\' '--y' 'temp@15\\B0 C'", "ast" : { "expr" : [ { "string" : "_aBc0" }, { "string" : "0abc" }, { "string" : "-x-\"-'-\\" }, {"string" : "--y" }, {"string" : "temp@15°C" } ] } }
 { "css" : "rgb(0, 133, 255)", "ast" : { "rgb" : [ { "num" : 0 }, { "num" : 133 }, { "num" : 255 } ] } }
-{ "css" : "rgb(0, 133, 255), rgb(255, 170, 119)", "ast" : { "expr" : [ { "rgb" : [ { "num" : 0 }, { "num" : 133 }, { "num" : 255 } ] }, { "op" : "," }, { "rgb" : [ { "num" : 255 }, { "num" : 170 }, { "num" : 119 } ] } ] } }
+{ "css" : "rgb(0, 133, 255), rgb(10%, 20%, 30%)", "ast" : { "expr" : [ { "rgb" : [ { "num" : 0 }, { "num" : 133 }, { "num" : 255 } ] }, { "op" : "," }, { "rgb" : [ { "percent" : 10 }, { "percent" : 20 }, { "percent" : 30 } ] } ] } }
 { "css" : "line-height: 1.1px !important;", "ast" : { "property" : { "ident" : "line-height", "expr" : [ { "px" : 1.1 } ], "prio" : "important" } } }
