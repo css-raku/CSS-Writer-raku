@@ -22,7 +22,7 @@ for 't/data.json'.IO.lines {
         next;
     }
 
-    is CSS::Writer.write( $ast ), $css, "serialize to: $css"
+    is CSS::Writer.write( $ast ), $css, "serialize {$ast.keys} to: $css"
         or diag {ast => $ast}.perl;
 }
 

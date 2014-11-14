@@ -17,8 +17,8 @@ class CSS::Writer::Values {
     method write-string( Str $str) {
         [~] ("'",
              $str.comb.map({
-                 when /<CSS::Grammar::CSS3::stringchar-regular>/ {$_}
-                 when "'" {"\\'"}
+                 when /<CSS::Grammar::CSS3::stringchar-regular>|\"/ {$_}
+                 when /<CSS::Grammar::CSS3::regascii>/ {'\\' ~ $_}
                  default { .ord.fmt("\\%X ") }
              }),
              "'");
@@ -61,10 +61,17 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::IdentifierComponent, Str $ast) {
-        [~] $ast.comb.map({
+
+        my $ident = $ast;
+        my $pfx = $ident ~~ s/^"-"// ?? '-' !! '';
+
+        my $n;
+
+        [~] $pfx, $ident.comb.map({
+            when !$n++ && $_ eq '-'               { '\\-' }
             when /<CSS::Grammar::CSS3::nmreg>/    { $_ };
-            when /<CSS::Grammar::CSS3::nonascii>/ { $_ };
-            default { .ord.fmt("\\%X ") }
+            when /<CSS::Grammar::CSS3::regascii>/ { '\\' ~ $_ };
+            default                               { .ord.fmt("\\%X ") }
         });
     }
 
