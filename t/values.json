@@ -23,7 +23,7 @@
 [ "frequency", "45hz" ]
 [ "frequency", ".1Khz", { "out" : "100hz" } ]
 // <identifier>
-[ "identifier", "Hi\\021 th\\0065 re", { "out" : "Hi\\21 there", "grammar" : { "skip" : "n/a to grammars" } } ] 
+[ "identifier", "Hi\\021 th\\0065 re", { "out" : "Hi\\!there", "grammar" : { "skip" : "n/a to grammars" } } ] 
 // <percentage>
 [ "term", "10%" ]
 [ "term", "10.0%", { "out" : "10%" } ]
