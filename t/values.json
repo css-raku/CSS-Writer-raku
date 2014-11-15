@@ -43,6 +43,7 @@
 // declarations - general
 // grammars don't grok named colors
 [ "declaration", " Color : red ;", { "out" : "color: rgb(255, 0, 0);" , "grammar" : { "out" : "color: red;" } } ]
+[ "declaration", "font: normal small-caps 120%/120% fantasy;" ]
 [ "declaration", "word-spacing: normal !important;" ]
 [ "declaration", "word-spacing: inherit;" ]
 [ "declaration", "margin: 2px 1em", { "out" : "margin: 2px em;" } ]

@@ -26,8 +26,10 @@ class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
         elsif ($ast.isa(Hash) || $ast.isa(Pair)) {
             # it's a token represented by a type/value pair
             my ($type, $data, @_guff) = $ast.kv;
-                die "node contains multple tokens: {$ast.keys}"
-                    if @_guff;
+            die "node contains multple tokens: {$ast.keys}"
+                if @_guff;    
+
+            $type = $type.subst(/':'.*/, '');
 
             $node = CSS::Grammar::AST.token( $data, :$type);
         }

@@ -160,13 +160,15 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::ExpressionComponent, List $terms ) {
-        my $first = True;
-        [~] @$terms.map({
+        my $sep = '';
 
-            my $sp = $first || .{ CSSValue::OperatorComponent } ?? '' !! ' ';
-            $first = False;
+        [~] @$terms.map( -> $term {
 
-            $sp ~ $.write($_);
+            $sep = '' if $term<op> && $term<op>;
+            my $out = $sep ~ $.write($term);
+            $sep = $term<op> && $term<op> ne ',' ?? '' !! ' ';
+
+            $out;
         });
     }
 
