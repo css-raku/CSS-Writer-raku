@@ -8,7 +8,7 @@ use JSON::Tiny;
 
 use CSS::Writer;
 
-for 't/data.json'.IO.lines {
+for 't/serialize.json'.IO.lines {
 
     next if .substr(0,2) eq '//';
 

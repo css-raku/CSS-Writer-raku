@@ -75,6 +75,21 @@ class CSS::Writer::Values {
         });
     }
 
+    multi method write-value( CSSValue::NamespacePrefixComponent, Str $_ ) {
+        when ''  {''}   # no namespace
+        when '*' {'*'}  # wildcard namespace
+        default  { $.write-value( CSSValue::IdentifierComponent, $_ ) }
+    }
+
+    multi method write-value( CSSValue::ElementNameComponent, Str $_ ) {
+        when '*' {'*'}  # wildcard namespace
+        default  { $.write-value( CSSValue::IdentifierComponent, $_ ) }
+    }
+
+    multi method write-value( CSSValue::AtKeywordComponent, Str $ast ) {
+        '@' ~ $.write( CSSValue::IdentifierComponent => $ast );
+    }
+
     multi method write-value( CSSValue::KeywordComponent, Str $ast ) {
         $ast;
     }
@@ -164,7 +179,10 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::QnameComponent, Hash $ast ) {
-        $.write( ident => $ast<element-name> );
+        my $out = $.write($ast, :token<element-name>);
+        $out = [~] $.write($ast, :token<ns-prefix>), '|', $out
+            if $ast<ns-prefix>:exists;
+        $out;
     }
 
     multi method write-value( Any $type, Any $ast ) is default {
