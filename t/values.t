@@ -40,13 +40,17 @@ for 't/values.json'.IO.lines {
         }
 
         %expected<ast> = Any;
-        my $expected-out = %expected<out>;
+        my $expected-out = %expected<out> // $input;
+        my $todo = %expected<todo>:delete;
 
         temp $/ = CSS::Grammar::Test::parse-tests($class, $input, :$rule, :$actions, :%expected, :$suite);
 
         my @warnings = $actions.warnings;
 
-        is CSS::Writer.write( $/.ast ), $expected-out, "$suite $rule round trip: $input"
+        my $test-name = "$suite $rule round trip: $input";
+
+        todo( $todo ) if $todo;
+        is CSS::Writer.write( $/.ast ), $expected-out, $test-name
             or diag {suite => $suite, parse => ~$/, ast => $/.ast}.perl;
     }
 }

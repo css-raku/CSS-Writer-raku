@@ -43,10 +43,11 @@
 // declarations - general
 // grammars don't grok named colors
 [ "declaration", " Color : red ;", { "out" : "color: rgb(255, 0, 0);" , "grammar" : { "out" : "color: red;" } } ]
-[ "declaration", "font: normal small-caps 120%/120% fantasy;" ]
+[ "declaration", "font: normal small-caps 120%/120% fantasy;", { "module" : { "todo" : "op serialization" }, "drafts" : { "todo" : "op serialization" } } ]
 [ "declaration", "word-spacing: normal !important;" ]
 [ "declaration", "word-spacing: inherit;" ]
 [ "declaration", "margin: 2px 1em", { "out" : "margin: 2px em;" } ]
 [ "declaration", "margin: 2px 1em", { "out" : "margin: 2px em;" } ]
-//[ "declaration", "content: attr(foo);" ]
+// drafts is currently producing malformed AST
+[ "declaration", "content: attr(foo);", { "drafts" : { "skip" : "attr(..) ast" } } ]
 [ "declaration-list", "font-size:0px;z-index: -9;position:absolute;left:-999px", { "out" : "  font-size: 0px;\n  z-index: -9;\n  position: absolute;\n  left: -999px;" } ]
