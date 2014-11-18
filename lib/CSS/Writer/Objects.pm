@@ -37,7 +37,7 @@ class CSS::Writer::Objects {
         ...
     }
 
-    multi method write-object( CSSObject::Rule, Any $ast ) {
+    multi method write-object( CSSObject::RuleSet, Any $ast ) {
         ...
     }
 
