@@ -50,4 +50,9 @@
 [ "declaration", "margin: 2px 1em", { "out" : "margin: 2px em;" } ]
 // drafts is currently producing malformed AST
 [ "declaration", "content: attr(foo);", { "drafts" : { "skip" : "attr(..) ast" } } ]
+// hmm, from http://www.w3.org/TR/2013/WD-css3-fonts-20130212/#font-family-casing
+// "User agents must match font names case insensitively, using the "Default Caseless Matching" algorithm
+// outlined in the Unicode specification". So both "grammar" and "module" serializations are legitimate
+[ "declaration", "font-family: MainText;", { "grammar" : { "out" : "font-family: maintext;" } } ]
+[ "declaration", "font-variant: discretionary-ligatures character-variant(leo-B, leo-M, leo-N, leo-T, leo-U);", { "grammar" : { "out" : "font-variant: discretionary-ligatures character-variant(leo-b, leo-m, leo-n, leo-t, leo-u);" } } ]
 [ "declaration-list", "font-size:0px;z-index: -9;position:absolute;left:-999px", { "out" : "  font-size: 0px;\n  z-index: -9;\n  position: absolute;\n  left: -999px;" } ]

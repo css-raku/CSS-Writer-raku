@@ -35,7 +35,7 @@ for 't/values.json'.IO.lines {
         my %expected = %$opts, %( $opts{$suite} // {} );
 
         if my $skip = %expected<skip> {
-            skip $skip;
+            skip "$suite $rule - $skip";
             next;
         }
 
