@@ -5,8 +5,12 @@ class CSS::Writer {...}
 use CSS::Grammar::AST;
 use CSS::Writer::Objects;
 use CSS::Writer::Values;
+use CSS::Writer::Selectors;
 
-class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
+class CSS::Writer
+    is CSS::Writer::Objects
+    is CSS::Writer::Values
+    is CSS::Writer::Selectors {
 
     method write($ast, :$token) {
 
@@ -26,7 +30,8 @@ class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
         elsif ($ast.isa(Hash) || $ast.isa(Pair)) {
             # it's a token represented by a type/value pair
             my ($type, $data, @_guff) = $ast.kv;
-            die "node contains multple tokens: {$ast.keys}"
+            die "empty AST node" unless $type;
+            die "AST node contains multple tokens: {$ast.keys}"
                 if @_guff;    
 
             $type = $type.subst(/':'.*/, '');
@@ -35,22 +40,34 @@ class CSS::Writer is CSS::Writer::Objects is CSS::Writer::Values {
         }
 
         unless $node.defined {
-            note "unable to determine token: $ast";
+            note "unable to determine token: {$ast.perl}";
             return '';
         }
 
-        my $type;
-        my $type-name := ~$node.type;
+        my $type-name := ~$node.type
+            or die "untyped object: {$node.perl}";
         my $units := $node.units;
 
-        if $type = CSS::Grammar::AST::CSSObject( $type-name ) {
-            $.write-object( $type, $node, :$units );
-        }
-        elsif $type = CSS::Grammar::AST::CSSValue( $type-name ) {
-            $.write-value( $type, $node, :$units );
+        my $type = CSS::Grammar::AST::CSSObject( $type-name )
+            // CSS::Grammar::AST::CSSValue( $type-name )
+            // CSS::Grammar::AST::CSSSelector( $type-name );
+
+        if $type {
+            given $type {
+                when CSS::Grammar::AST::CSSValue {
+                    $.write-value( $type, $node, :$units );
+                }
+                when CSS::Grammar::AST::CSSObject {
+                    $.write-object( $type, $node, :$units );
+                }
+                when CSS::Grammar::AST::CSSSelector {
+                    $.write-selector( $type, $node, :$units );
+                }
+                default {die "unhandled type: $type"}
+            }
         }
         else {
-            note "unknown type: $type";
+            note "unknown type: $type-name";
             '';
         }
     }

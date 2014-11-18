@@ -1,0 +1,3 @@
+[ "pseudo", ":nth-child(2n+1)", { "grammar" : { "skip" : "selector syntax" } } ]
+[ "id", "#foo" ]
+[ "class", ".bar" ]

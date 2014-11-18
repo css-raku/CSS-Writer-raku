@@ -18,7 +18,7 @@ my $grammar-actions = CSS::Grammar::Actions.new(:verbose);
 my $module-actions = CSS::Module::CSS3::Actions.new(:verbose);
 my $draft-actions = CSS::Drafts::CSS3::Actions.new(:verbose);
 
-for 't/objects.json'.IO.lines {
+for 't/selectors.json'.IO.lines {
 
     next if .substr(0,2) eq '//';
 
@@ -40,14 +40,16 @@ for 't/objects.json'.IO.lines {
         }
 
         %expected<ast> = Any;
-        my $expected-out = %expected<out>;
+        my $expected-out = %expected<out> // $input;
 
         temp $/ = CSS::Grammar::Test::parse-tests($class, $input, :$rule, :$actions, :%expected, :$suite);
 
         my @warnings = $actions.warnings;
+        my $ast = $/.ast;
+        $ast = {$rule => $ast} if $ast.defined && !$ast.isa('Hash');
 
-        is CSS::Writer.write( $/.ast ), $expected-out, "$suite $rule round trip: $input"
-            or diag {suite => $suite, parse => ~$/, ast => $/.ast}.perl;
+        is CSS::Writer.write( $ast ), $expected-out, "$suite $rule round trip: $input"
+            or diag {suite => $suite, parse => ~$/, ast => $ast}.perl;
     }
 }
 
