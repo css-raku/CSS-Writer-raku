@@ -1,0 +1,1 @@
+[ "ruleset", "H1 { font-weight: bold; }", { "out" : "h1 {\n  font-weight: bold;\n}" } ]
