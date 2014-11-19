@@ -1,3 +1,8 @@
 [ "pseudo", ":nth-child(2n+1)", { "grammar" : { "skip" : "selector syntax" } } ]
 [ "id", "#foo" ]
 [ "class", ".bar" ]
+[ "simple-selector", "A.external:visited", { "out" : "a.external:visited" } ]
+[ "simple-selector", "A[ href ]", { "out" : "a[href]" } ]
+[ "simple-selector", "a[href~='foo']" ]
+[ "selector", "ol > li:first-child" ]
+[ "selectors", "A:link H1 ,  H2", { "out" : "a:link h1, h2" } ]
