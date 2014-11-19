@@ -37,8 +37,8 @@ class CSS::Writer::Objects {
         ...
     }
 
-    multi method write-object( CSSObject::RuleSet, Any $ast ) {
-        ...
+    multi method write-object( CSSObject::RuleSet, Hash $ast ) {
+        sprintf "%s \{\n%s\n\}", $.write($ast, :token<selectors>), $.write($ast, :token<declarations>);
     }
 
     multi method write-object( CSSObject::RuleList, Any $ast ) {
