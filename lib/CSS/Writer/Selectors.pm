@@ -46,9 +46,16 @@ class CSS::Writer::Selectors {
         '#' ~ $.write( 'ident' => $ast );
     }
 
+    multi method write-selector( CSSSelector::MediaList, List $ast ) {
+        join(' ', $ast.map({ $.write( $_ ) }) );
+    }
+
+    multi method write-selector( CSSSelector::MediaQuery, List $ast ) {
+        join(' ', $ast.map({ $.write( $_ ) }) );
+    }
+
     multi method write-selector( Any $type, Any $ast ) is default {
         die "unable to handle value type: {$type.perl}, ast: {$ast.perl}"
     }
-
 
 }

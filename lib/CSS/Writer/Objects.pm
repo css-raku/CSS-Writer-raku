@@ -25,8 +25,8 @@ class CSS::Writer::Objects {
         ...
     }
 
-    multi method write-object( CSSObject::MediaRule, Any $ast ) {
-        ...
+    multi method write-object( CSSObject::MediaRule, Hash $ast ) {
+        join(' ', <@ media-list rule-list>.grep({ $ast{$_}:exists }).map({ $.write( $ast, :token($_) ) }) );
     }
 
     multi method write-object( CSSObject::NamespaceRule, Any $ast ) {
@@ -41,8 +41,8 @@ class CSS::Writer::Objects {
         sprintf "%s \{\n%s\n\}", $.write($ast, :token<selectors>), $.write($ast, :token<declarations>);
     }
 
-    multi method write-object( CSSObject::RuleList, Any $ast ) {
-        ...
+    multi method write-object( CSSObject::RuleList, List $ast ) {
+        join("\n", $ast.map: { '{ ' ~ $.write($_)  ~ '}' } );
     }
 
     multi method write-object( CSSObject::StyleDeclaration, Any $ast ) {

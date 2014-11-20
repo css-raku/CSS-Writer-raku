@@ -112,7 +112,8 @@ class CSS::Writer::Values {
 
     multi method write-value( CSSValue::Property, Hash $ast, :$indent=0 ) {
         my $prio = $ast<prio> ?? ' !important' !! '';
-        sprintf '%s%s: %s%s;', ' ' x $indent, $.write( $ast, :token<ident> ), $.write( $ast, :token<expr> ), $prio;
+        my $expr = $ast<expr> ?? sprintf ': %s', $.write( $ast, :token<expr> ) !! '';
+        [~] (' ' x $indent), $.write( $ast, :token<ident> ), $expr, $prio, ';';
     }
 
     multi method write-value( CSSValue::PropertyList, List $ast ) {
