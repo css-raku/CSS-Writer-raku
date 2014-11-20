@@ -12,7 +12,7 @@ use CSS::Grammar::Test;
 use CSS::Module::CSS3;
 use CSS::Drafts::CSS3;
 
-use CSS::Writer;
+use CSS::AST::Writer;
 
 my $grammar-actions = CSS::Grammar::Actions.new(:verbose);
 my $module-actions = CSS::Module::CSS3::Actions.new(:verbose);
@@ -48,7 +48,7 @@ for 't/selectors.json'.IO.lines {
         my $ast = $/.ast;
         $ast = {$rule => $ast} if $ast.defined && !$ast.isa('Hash');
 
-        is CSS::Writer.write( $ast ), $expected-out, "$suite $rule round trip: $input"
+        is CSS::AST::Writer.write( $ast ), $expected-out, "$suite $rule round trip: $input"
             or diag {suite => $suite, parse => ~$/, ast => $ast}.perl;
     }
 }

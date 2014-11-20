@@ -1,7 +1,7 @@
 use v6;
 use CSS::Grammar::AST :CSSObject;
 
-class CSS::Writer::Objects {
+class CSS::AST::Writer::Objects {
 
     proto write-object( Str $type, Any $ast, Str $units --> Str ) {*}
 

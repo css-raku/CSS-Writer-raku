@@ -2,7 +2,7 @@ use v6;
 
 use CSS::Grammar::CSS3;
 
-class CSS::Writer::Selectors {
+class CSS::AST::Writer::Selectors {
 
     use CSS::Grammar::AST :CSSSelector;
 
