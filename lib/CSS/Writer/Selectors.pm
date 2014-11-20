@@ -47,7 +47,7 @@ class CSS::Writer::Selectors {
     }
 
     multi method write-selector( CSSSelector::MediaList, List $ast ) {
-        join(' ', $ast.map({ $.write( $_ ) }) );
+        join(', ', $ast.map({ $.write( $_ ) }) );
     }
 
     multi method write-selector( CSSSelector::MediaQuery, List $ast ) {

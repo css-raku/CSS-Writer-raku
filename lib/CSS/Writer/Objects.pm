@@ -5,8 +5,8 @@ class CSS::Writer::Objects {
 
     proto write-object( Str $type, Any $ast, Str $units --> Str ) {*}
 
-    multi method write-object( CSSObject::CharsetRule, Any $ast ) {
-        ...
+    multi method write-object( CSSObject::CharsetRule, Str $ast ) {
+        [~] '@charset ', $.write( 'string' => $ast ), ';'
     }
 
     multi method write-object( CSSObject::FontFaceRule, Any $ast ) {
@@ -17,8 +17,8 @@ class CSS::Writer::Objects {
         ...
     }
 
-    multi method write-object( CSSObject::ImportRule, Any $ast ) {
-        ...
+    multi method write-object( CSSObject::ImportRule, Hash $ast ) {
+        [~] '@import ', join(' ', <url media-list>.grep({ $ast{$_}:exists }).map({ $.write( $ast, :token($_) ) })), ';';
     }
 
     multi method write-object( CSSObject::MarginRule, Any $ast ) {
@@ -26,7 +26,7 @@ class CSS::Writer::Objects {
     }
 
     multi method write-object( CSSObject::MediaRule, Hash $ast ) {
-        join(' ', <@ media-list rule-list>.grep({ $ast{$_}:exists }).map({ $.write( $ast, :token($_) ) }) );
+        [~] '@media ', <media-list rule-list>.grep({ $ast{$_}:exists }).map({ $.write( $ast, :token($_) ) });
     }
 
     multi method write-object( CSSObject::NamespaceRule, Any $ast ) {
@@ -42,7 +42,7 @@ class CSS::Writer::Objects {
     }
 
     multi method write-object( CSSObject::RuleList, List $ast ) {
-        join("\n", $ast.map: { '{ ' ~ $.write($_)  ~ '}' } );
+        ' { ' ~ join("\n", $ast.map: { $.write($_) } ) ~ '}';
     }
 
     multi method write-object( CSSObject::StyleDeclaration, Any $ast ) {
@@ -53,8 +53,8 @@ class CSS::Writer::Objects {
         ...
     }
 
-    multi method write-object( CSSObject::StyleSheet, Any $ast ) {
-        ...
+    multi method write-object( CSSObject::StyleSheet, List $ast ) {
+        join("\n\n", $ast.map({ $.write( $_ ) }) );
     }
 
     multi method write-object( Any $type, Any $ast ) is default {
