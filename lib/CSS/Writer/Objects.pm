@@ -1,8 +1,8 @@
 use v6;
-use CSS::Grammar::AST :CSSObject;
 
 class CSS::Writer::Objects {
 
+    use CSS::AST :CSSObject;
     proto write-object( Str $type, Any $ast, Str $units --> Str ) {*}
 
     multi method write-object( CSSObject::CharsetRule, Str $ast ) {
@@ -34,23 +34,15 @@ class CSS::Writer::Objects {
     }
 
     multi method write-object( CSSObject::PageRule, Any $ast ) {
-        ...
+        [~] '@page ', <pseudo-elem declarations>.grep({ $ast{$_}:exists }).map({ $.write( $ast, :token($_) ) });
     }
 
     multi method write-object( CSSObject::RuleSet, Hash $ast ) {
-        sprintf "%s \{\n%s\n\}", $.write($ast, :token<selectors>), $.write($ast, :token<declarations>);
+        sprintf "%s %s", $.write($ast, :token<selectors>), $.write($ast, :token<declarations>);
     }
 
     multi method write-object( CSSObject::RuleList, List $ast ) {
         ' { ' ~ join("\n", $ast.map: { $.write($_) } ) ~ '}';
-    }
-
-    multi method write-object( CSSObject::StyleDeclaration, Any $ast ) {
-        ...
-    }
-
-    multi method write-object( CSSObject::StyleRule, Any $ast ) {
-        ...
     }
 
     multi method write-object( CSSObject::StyleSheet, List $ast ) {

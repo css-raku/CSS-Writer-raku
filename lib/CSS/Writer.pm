@@ -1,8 +1,5 @@
 use v6;
 
-class CSS::Writer {...}
-
-use CSS::Grammar::AST;
 use CSS::Writer::Objects;
 use CSS::Writer::Values;
 use CSS::Writer::Selectors;
@@ -11,6 +8,8 @@ class CSS::Writer
     is CSS::Writer::Objects
     is CSS::Writer::Values
     is CSS::Writer::Selectors {
+
+    use CSS::AST;
 
     method write($ast, :$token) {
 
@@ -21,7 +20,7 @@ class CSS::Writer
         if $token {
             my $data = $ast{ $token }
                 // die "node does not contain: $token";
-            $node = CSS::Grammar::AST.token( $data, :type($token));
+            $node = CSS::AST.token( $data, :type($token));
         }
         elsif $ast.can('type') {
             # already tokenised
@@ -36,7 +35,7 @@ class CSS::Writer
 
             $type = $type.subst(/':'.*/, '');
 
-            $node = CSS::Grammar::AST.token( $data, :$type);
+            $node = CSS::AST.token( $data, :$type);
         }
 
         unless $node.defined {
@@ -48,19 +47,19 @@ class CSS::Writer
             or die "untyped object: {$node.perl}";
         my $units := $node.units;
 
-        my $type = CSS::Grammar::AST::CSSObject( $type-name )
-            // CSS::Grammar::AST::CSSValue( $type-name )
-            // CSS::Grammar::AST::CSSSelector( $type-name );
+        my $type = CSS::AST::CSSObject( $type-name )
+            // CSS::AST::CSSValue( $type-name )
+            // CSS::AST::CSSSelector( $type-name );
 
         if $type {
             given $type {
-                when CSS::Grammar::AST::CSSValue {
+                when CSS::AST::CSSValue {
                     $.write-value( $type, $node, :$units );
                 }
-                when CSS::Grammar::AST::CSSObject {
+                when CSS::AST::CSSObject {
                     $.write-object( $type, $node, :$units );
                 }
-                when CSS::Grammar::AST::CSSSelector {
+                when CSS::AST::CSSSelector {
                     $.write-selector( $type, $node, :$units );
                 }
                 default {die "unhandled type: $type"}

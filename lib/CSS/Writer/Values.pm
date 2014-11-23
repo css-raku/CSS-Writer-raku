@@ -1,15 +1,15 @@
 use v6;
 
-use CSS::Grammar::CSS3;
 
 class CSS::Writer::Values {
 
-    use CSS::Grammar::AST :CSSValue;
+    use CSS::Grammar::CSS3;
+    use CSS::AST :CSSValue;
 
     multi method write-num( 1, 'em' ) { 'em' }
     multi method write-num( 1, 'ex' ) { 'ex' }
 
-    multi method write-num( Numeric $num, Str $units? ) {
+    multi method write-num( Numeric $num, Any $units? ) {
         my $int = $num.Int;
         return ($int == $num ?? $int !! $num) ~ ($units.defined ?? $units.lc !! '');
     }
@@ -64,11 +64,13 @@ class CSS::Writer::Values {
 
         my $ident = $ast;
         my $pfx = $ident ~~ s/^"-"// ?? '-' !! '';
+        my $minus = $ident ~~ s/^"-"// ?? '\\-' !! '';
+        [~] $pfx, $minus, $.write( 'name' => $ident);
+    }
 
-        my $n;
+    multi method write-value( CSSValue::NameComponent, Str $ast) {
 
-        [~] $pfx, $ident.comb.map({
-            when !$n++ && $_ eq '-'               { '\\-' }
+        [~] $ast.comb.map({
             when /<CSS::Grammar::CSS3::nmreg>/    { $_ };
             when /<CSS::Grammar::CSS3::regascii>/ { '\\' ~ $_ };
             default                               { .ord.fmt("\\%X ") }
@@ -94,16 +96,16 @@ class CSS::Writer::Values {
         $ast;
     }
 
-    multi method write-value( CSSValue::LengthComponent, Numeric $ast, Str :$units ) {
-        $.write-num( $ast, $units );
+    multi method write-value( CSSValue::LengthComponent, Numeric $ast, Any :$units? ) {
+        $.write-num( $ast, $units);
     }
 
     multi method write-value( CSSValue::Map, Any $ast ) {
         ...
     }
 
-    multi method write-value(CSSValue::OperatorComponent, Str $_) {
-        $_;
+    multi method write-value(CSSValue::OperatorComponent, Str $ast) {
+        $ast.lc;
     }
 
     multi method write-value( CSSValue::PercentageComponent, Numeric $ast ) {
@@ -117,7 +119,7 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::PropertyList, List $ast ) {
-        join("\n", $ast.map: {$.write-value( CSSValue::Property, $_, :indent(2) )});
+        sprintf "\{\n%s\n\}", join("\n", $ast.map: {$.write-value( CSSValue::Property, $_, :indent(2) )});
     }
 
     multi method write-value( CSSValue::StringComponent, Str $ast ) {
@@ -136,11 +138,11 @@ class CSS::Writer::Values {
         $.write-num( $ast );
     }
 
-    multi method write-value( CSSValue::AngleComponent, Numeric $ast, Str :$units ) {
+    multi method write-value( CSSValue::AngleComponent, Numeric $ast, Any :$units? ) {
         $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::FrequencyComponent, Numeric $ast, Str :$units ) {
+    multi method write-value( CSSValue::FrequencyComponent, Numeric $ast, Any :$units? ) {
         # 'The frequency in hertz serialized as per <number> followed by the literal string "hz"'
         # - http://dev.w3.org/csswg/cssom/#serializing-css-values
         return $units eq 'khz'
@@ -173,11 +175,11 @@ class CSS::Writer::Values {
         });
     }
 
-    multi method write-value( CSSValue::ResolutionComponent, Numeric $ast, Str :$units ) {
+    multi method write-value( CSSValue::ResolutionComponent, Numeric $ast, Any :$units? ) {
         $.write-num( $ast, $units );
     }
 
-    multi method write-value( CSSValue::TimeComponent, Numeric $ast, Str :$units ) {
+    multi method write-value( CSSValue::TimeComponent, Numeric $ast, Any :$units? ) {
         $.write-num( $ast, $units );
     }
 

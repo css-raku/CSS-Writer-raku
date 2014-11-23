@@ -1,10 +1,9 @@
 use v6;
 
-use CSS::Grammar::CSS3;
-
 class CSS::Writer::Selectors {
 
-    use CSS::Grammar::AST :CSSSelector;
+    use CSS::Grammar::CSS3;
+    use CSS::AST :CSSSelector;
 
     multi method write-selector( CSSSelector::SelectorList, List $ast ) {
         join(', ',  $ast.map({ $.write( $_ ) }) );
@@ -23,7 +22,11 @@ class CSS::Writer::Selectors {
     }
 
     multi method write-selector( CSSSelector::PseudoClass, Str $ast ) {
-        ':' ~ $.write( 'ident' => $ast );
+        ':' ~ $.write( 'name' => $ast );
+    }
+
+    multi method write-selector( CSSSelector::PseudoElement, Str $ast ) {
+        ':' ~ $.write( 'name' => $ast );
     }
 
     multi method write-selector( CSSSelector::PseudoFunction, Hash $ast ) {
@@ -31,10 +34,11 @@ class CSS::Writer::Selectors {
     }
 
     multi method write-selector( CSSSelector::Class, Str $ast ) {
-        '.' ~ $.write( 'ident' => $ast );
+        '.' ~ $.write( 'name' => $ast );
     }
 
     multi method write-selector( CSSSelector::AttributeSelector, List $ast ) {
+
         [~] '[', $ast.map({ $.write( $_ ) }), ']';
     }
 
@@ -43,7 +47,7 @@ class CSS::Writer::Selectors {
     }
 
     multi method write-selector( CSSSelector::Id, Str $ast ) {
-        '#' ~ $.write( 'ident' => $ast );
+        '#' ~ $.write( 'name' => $ast );
     }
 
     multi method write-selector( CSSSelector::MediaList, List $ast ) {
