@@ -26,7 +26,7 @@ class CSS::Writer::Selectors {
     }
 
     multi method write-selector( CSSSelector::PseudoElement, Str $ast ) {
-        ':' ~ $.write( 'name' => $ast );
+        '::' ~ $.write( 'name' => $ast );
     }
 
     multi method write-selector( CSSSelector::PseudoFunction, Hash $ast ) {

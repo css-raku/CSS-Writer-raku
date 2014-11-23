@@ -183,6 +183,30 @@ class CSS::Writer::Values {
         $.write-num( $ast, $units );
     }
 
+    multi method write-value( CSSValue::UnicodeRangeComponent, List $ast ) {
+
+        my $range;
+        my ($lo, $hi) = @$ast.map: {sprintf("%X", $_)};
+
+        if !$lo eq $hi {
+            # single value
+            $range = sprintf '%x', $lo;
+        }
+        else {
+            my $lo-sub = $lo.subst(/0+$/, '');
+            my $hi-sub = $hi.subst(/F+$/, '');
+
+            if $lo-sub eq $hi-sub {
+                $range = $lo-sub  ~ ('?' x ($lo.chars - $lo-sub.chars));
+            }
+            else {
+                $range = [~] $lo, '-', $hi;
+            }
+        }
+
+        'U+' ~ $range;
+    }
+
     multi method write-value( CSSValue::QnameComponent, Hash $ast ) {
         my $out = $.write($ast, :token<element-name>);
         $out = [~] $.write($ast, :token<ns-prefix>), '|', $out

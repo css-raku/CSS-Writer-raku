@@ -44,6 +44,11 @@
 // <uri>
 [ "expr", "url( 'dog.jpg' )", { "out" : "url('dog.jpg')" } ]
 [ "expr", "url(cat.gif)", { "out" : "url('cat.gif')" } ]
+// <unicode-range>
+[ "unicode-range", "U+FA" ]
+[ "unicode-range", "U+2??" ]
+[ "unicode-range", "U+A0-AE" ]
+[ "unicode-range", "U+A0-AF", { "out" : "U+A?" } ]
 //
 // declarations - general
 // grammars don't grok named colors
