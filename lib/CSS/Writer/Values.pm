@@ -2,7 +2,7 @@ use v6;
 
 use CSS::Grammar::CSS3;
 
-class CSS::AST::Writer::Values {
+class CSS::Writer::Values {
 
     use CSS::Grammar::AST :CSSValue;
 

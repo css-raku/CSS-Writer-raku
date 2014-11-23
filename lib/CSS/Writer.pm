@@ -1,16 +1,16 @@
 use v6;
 
-class CSS::AST::Writer {...}
+class CSS::Writer {...}
 
 use CSS::Grammar::AST;
-use CSS::AST::Writer::Objects;
-use CSS::AST::Writer::Values;
-use CSS::AST::Writer::Selectors;
+use CSS::Writer::Objects;
+use CSS::Writer::Values;
+use CSS::Writer::Selectors;
 
-class CSS::AST::Writer
-    is CSS::AST::Writer::Objects
-    is CSS::AST::Writer::Values
-    is CSS::AST::Writer::Selectors {
+class CSS::Writer
+    is CSS::Writer::Objects
+    is CSS::Writer::Values
+    is CSS::Writer::Selectors {
 
     method write($ast, :$token) {
 

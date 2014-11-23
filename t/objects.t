@@ -12,7 +12,7 @@ use CSS::Grammar::Test;
 use CSS::Module::CSS3;
 use CSS::Drafts::CSS3;
 
-use CSS::AST::Writer;
+use CSS::Writer;
 
 my $grammar-actions = CSS::Grammar::Actions.new(:verbose);
 my $module-actions = CSS::Module::CSS3::Actions.new(:verbose);
@@ -50,7 +50,7 @@ for 't/objects.json'.IO.lines {
         my $test-name = "$suite $rule round trip: $input";
 
         todo( $todo ) if $todo;
-        is CSS::AST::Writer.write( $/.ast ), $expected-out, $test-name
+        is CSS::Writer.write( $/.ast ), $expected-out, $test-name
             or diag {suite => $suite, parse => ~$/, ast => $/.ast}.perl;
     }
 }

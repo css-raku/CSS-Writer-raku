@@ -6,7 +6,7 @@
 use Test;
 use JSON::Tiny;
 
-use CSS::AST::Writer;
+use CSS::Writer;
 
 for 't/serialize.json'.IO.lines {
 
@@ -22,7 +22,7 @@ for 't/serialize.json'.IO.lines {
         next;
     }
 
-    is CSS::AST::Writer.write( $ast ), $css, "serialize {$ast.keys} to: $css"
+    is CSS::Writer.write( $ast ), $css, "serialize {$ast.keys} to: $css"
         or diag {ast => $ast}.perl;
 }
 

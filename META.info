@@ -1,11 +1,11 @@
 {
-    "name"        : "CSS::AST::Writer",
+    "name"        : "CSS::Grammar::Writer",
     "version"     : "*",
     "description" : "CSS AST Serializer; compatible with CSS::Grammar, CSS::Module and CSS:Drafts",
     "depends"     : [ "CSS::Grammar", "CSS::Module", "CSS::Drafts", "JSON::Tiny"  ],
-    "source-url"  : "git://github.com/p6-css/perl6-CSS-Writer.git",
+    "source-url"  : "git://github.com/p6-css/perl6-CSS-Grammar::Writer.git",
     "provides"    : {
-        "CSS::AST::Writer" : "lib/CSS/AST/Writer.pm"
+        "CSS::Grammar::Writer" : "lib/CSS/Grammar::Writer.pm"
      }
 }
 
