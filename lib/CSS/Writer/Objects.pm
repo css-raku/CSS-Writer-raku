@@ -9,8 +9,8 @@ class CSS::Writer::Objects {
         [~] '@charset ', $.write( 'string' => $ast ), ';'
     }
 
-    multi method write-object( CSSObject::FontFaceRule, Any $ast ) {
-        ...
+    multi method write-object( CSSObject::FontFaceRule, Hash $ast ) {
+        [~] '@font-face ', $.write( $ast, :token<declarations> );
     }
 
     multi method write-object( CSSObject::GroupingRule, Any $ast ) {

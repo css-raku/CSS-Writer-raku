@@ -45,13 +45,18 @@ class CSS::Writer::Values {
         sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
     }
 
+    multi method write-color(Str $ast, Any $) {
+        # e.g. 'transparent', 'currentcolor'
+        $ast.lc;
+    }
+
     multi method write-color( Any $color, Any $units ) is default {
         die "unable to handle color: {$color.perl}, units: {$units.perl}"
     }
 
     proto write-value(Str $, Any $ast, :$units? --> Str) {*}
 
-    multi method write-value( CSSValue::ColorComponent, List $ast, :$units ) {
+    multi method write-value( CSSValue::ColorComponent, Any $ast, :$units ) {
         $.write-color( $ast, $units);
     }
 
