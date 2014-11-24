@@ -49,6 +49,7 @@
 [ "unicode-range", "U+2??" ]
 [ "unicode-range", "U+A0-AE" ]
 [ "unicode-range", "U+A0-AF", { "out" : "U+A?" } ]
+[ "unicode-range", "U+00-FF", { "out" : "U+??" } ]
 //
 // declarations - general
 // grammars don't grok named colors

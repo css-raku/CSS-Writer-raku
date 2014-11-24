@@ -214,7 +214,7 @@ class CSS::Writer::Values {
             my $hi-sub = $hi.subst(/F+$/, '');
 
             if $lo-sub eq $hi-sub {
-                $range = $lo-sub  ~ ('?' x ($lo.chars - $lo-sub.chars));
+                $range = $hi-sub  ~ ('?' x ($hi.chars - $hi-sub.chars));
             }
             else {
                 $range = [~] $lo, '-', $hi;
