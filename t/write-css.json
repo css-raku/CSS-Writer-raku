@@ -50,7 +50,8 @@
 [ "unicode-range", "U+A0-AE" ]
 [ "unicode-range", "U+A0-AF", { "out" : "U+A?" } ]
 [ "unicode-range", "U+00-FF", { "out" : "U+??" } ]
-//
+// at-rules
+[ "stylesheet", "@import url('bluish.css') projection, tv;" ]
 // declarations - general
 // grammars don't grok named colors
 [ "declaration", " Color : red ;", { "out" : "color: red;" } ]

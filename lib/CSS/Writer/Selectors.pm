@@ -38,7 +38,6 @@ class CSS::Writer::Selectors {
     }
 
     multi method write-selector( CSSSelector::AttributeSelector, List $ast ) {
-
         [~] '[', $ast.map({ $.write( $_ ) }), ']';
     }
 
@@ -55,7 +54,16 @@ class CSS::Writer::Selectors {
     }
 
     multi method write-selector( CSSSelector::MediaQuery, List $ast ) {
-        join(' ', $ast.map({ $.write( $_ ) }) );
+        join(' ', $ast.map({
+            my $css = $.write( $_ );
+
+            if .<property> {
+                # e.g. color:blue => (color:blue)
+                $css = [~] '(', $css.subst(/';'$/, ''), ')';
+            }
+
+            $css
+        }) );
     }
 
     multi method write-selector( Any $type, Any $ast ) is default {
