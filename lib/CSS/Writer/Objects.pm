@@ -34,7 +34,7 @@ class CSS::Writer::Objects {
     }
 
     multi method write-object( CSSObject::PageRule, Any $ast ) {
-        [~] '@page ', <pseudo-elem declarations>.grep({ $ast{$_}:exists }).map({ $.write( $ast, :token($_) ) });
+        join(' ', '@page', <pseudo-class declarations>.grep({ $ast{$_}:exists }).map({ $.write( $ast, :token($_) ) }) );
     }
 
     multi method write-object( CSSObject::RuleSet, Hash $ast ) {

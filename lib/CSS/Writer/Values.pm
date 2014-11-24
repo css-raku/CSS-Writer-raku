@@ -1,6 +1,5 @@
 use v6;
 
-
 class CSS::Writer::Values {
 
     use CSS::Grammar::CSS3;
@@ -113,9 +112,22 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::Property, Hash $ast, :$indent=0 ) {
-        my $prio = $ast<prio> ?? ' !important' !! '';
-        my $expr = $ast<expr> ?? sprintf ': %s', $.write( $ast, :token<expr> ) !! '';
-        [~] (' ' x $indent), $.write( $ast, :token<ident> ), $expr, $prio, ';';
+
+        if $ast<ident>:exists {
+            # <ident> : <expr>
+            my $prio = $ast<prio> ?? ' !important' !! '';
+            my $expr = $ast<expr> ?? sprintf ': %s', $.write( $ast, :token<expr> ) !! '';
+            [~] (' ' x $indent), $.write( $ast, :token<ident> ), $expr, $prio, ';';
+        }
+        elsif $ast<@>:exists {
+            # @selectors { <sub-rules }
+            my $at-selector = $.write( $ast, :token<@> );
+            my $sub-rules = $.write( $ast, :token<declarations> );
+            sprintf '%s%s %s', (' ' x $indent), $at-selector, $sub-rules;
+        }
+        else {
+            die "unable to grok property ast: {$ast.perl}";
+        }
     }
 
     multi method write-value( CSSValue::PropertyList, List $ast ) {
