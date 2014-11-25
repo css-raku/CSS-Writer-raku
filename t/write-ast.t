@@ -8,6 +8,8 @@ use JSON::Tiny;
 
 use CSS::Writer;
 
+my $css-writer = CSS::Writer.new;
+
 for 't/write-ast.json'.IO.lines {
 
     next if .substr(0,2) eq '//';
@@ -22,7 +24,7 @@ for 't/write-ast.json'.IO.lines {
         next;
     }
 
-    is CSS::Writer.write( $ast ), $css, "serialize {$ast.keys} to: $css"
+    is $css-writer.write( $ast ), $css, "serialize {$ast.keys} to: $css"
         or diag {ast => $ast}.perl;
 }
 

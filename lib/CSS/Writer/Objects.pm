@@ -21,10 +21,10 @@ class CSS::Writer::Objects {
         [~] '@import ', join(' ', <url media-list>.grep({ $ast{$_}:exists }).map({ $.write( $ast, :token($_) ) })), ';';
     }
 
-    multi method write-object( CSSObject::MarginRule, Hash $ast, :$indent=0 ) {
+    multi method write-object( CSSObject::MarginRule, Hash $ast) {
         my $at-selector = $.write( $ast, :token<@> );
         my $sub-rules = $.write( $ast, :token<declarations> );
-        sprintf '%s%s %s', (' ' x $indent), $at-selector, $sub-rules;
+        sprintf '%s%s %s', $.indent, $at-selector, $sub-rules;
     }
 
     multi method write-object( CSSObject::MediaRule, Hash $ast ) {

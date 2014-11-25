@@ -12,6 +12,7 @@ use CSS::Grammar::Test;
 use CSS::Writer;
 
 my $actions = CSS::Grammar::Actions.new();
+my $css-writer = CSS::Writer.new;
 
 for 't/write-css.json'.IO.lines {
 
@@ -38,7 +39,7 @@ for 't/write-css.json'.IO.lines {
     my $test-name = "css3 $rule round trip: $css";
 
     todo( $todo ) if $todo;
-    is CSS::Writer.write( $ast ), $expected-out, $test-name
+    is $css-writer.write( $ast ), $expected-out, $test-name
         or diag {suite => $rule, parse => ~$/, ast => $/.ast}.perl;
 }
 

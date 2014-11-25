@@ -10,10 +10,14 @@ class CSS::Writer
     is CSS::Writer::Selectors {
 
     use CSS::AST;
+    has $.indent is rw = '';
 
     method write($ast, :$token, :$indent=0) {
 
         my $node;
+        temp $.indent;
+        $.indent ~= ' ' x $indent
+            if $indent;
 
         return '' unless $ast.defined;
 
@@ -54,13 +58,13 @@ class CSS::Writer
         if $type {
             given $type {
                 when CSS::AST::CSSValue {
-                    $.write-value( $type, $node, :$units, :$indent );
+                    $.write-value( $type, $node, :$units);
                 }
                 when CSS::AST::CSSObject {
-                    $.write-object( $type, $node, :$units, :$indent );
+                    $.write-object( $type, $node, :$units);
                 }
                 when CSS::AST::CSSSelector {
-                    $.write-selector( $type, $node, :$units, :$indent );
+                    $.write-selector( $type, $node, :$units);
                 }
                 default {die "unhandled type: $type"}
             }
