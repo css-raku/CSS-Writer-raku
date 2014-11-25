@@ -40,7 +40,7 @@
 [ "expr", "'yip\\'pee\\721yi'", { "out" : "'yip\\'pee\\721 yi'" } ]
 // <time>
 [ "time", "45s" ]
-// [ "time", "450ms" , { "out" : ".45s" } ]
+// [ "time", "450ms", { "out" : ".45s" } ]
 // <uri>
 [ "expr", "url( 'dog.jpg' )", { "out" : "url('dog.jpg')" } ]
 [ "expr", "url(cat.gif)", { "out" : "url('cat.gif')" } ]

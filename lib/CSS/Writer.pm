@@ -11,7 +11,7 @@ class CSS::Writer
 
     use CSS::AST;
 
-    method write($ast, :$token) {
+    method write($ast, :$token, :$indent=0) {
 
         my $node;
 
@@ -54,13 +54,13 @@ class CSS::Writer
         if $type {
             given $type {
                 when CSS::AST::CSSValue {
-                    $.write-value( $type, $node, :$units );
+                    $.write-value( $type, $node, :$units, :$indent );
                 }
                 when CSS::AST::CSSObject {
-                    $.write-object( $type, $node, :$units );
+                    $.write-object( $type, $node, :$units, :$indent );
                 }
                 when CSS::AST::CSSSelector {
-                    $.write-selector( $type, $node, :$units );
+                    $.write-selector( $type, $node, :$units, :$indent );
                 }
                 default {die "unhandled type: $type"}
             }
