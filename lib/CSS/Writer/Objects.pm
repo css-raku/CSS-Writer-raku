@@ -44,11 +44,12 @@ class CSS::Writer::Objects {
     }
 
     multi method write-object( CSSObject::RuleList, List $ast ) {
-        ' { ' ~ join("\n", $ast.map: { $.write($_) } ) ~ '}';
+        ' { ' ~ join($.nl, $ast.map: { $.write($_) } ) ~ '}';
     }
 
     multi method write-object( CSSObject::StyleSheet, List $ast ) {
-        join("\n\n", $ast.map({ $.write( $_ ) }) );
+        my $sep = $.terse ?? "\n" !! "\n\n";
+        join($sep, $ast.map({ $.write( $_ ) }) );
     }
 
     multi method write-object( Any $type, Any $ast ) is default {

@@ -10,14 +10,19 @@ class CSS::Writer
     is CSS::Writer::Selectors {
 
     use CSS::AST;
-    has $.indent is rw = '';
+    has Str $.indent is rw = '';
+    has Bool $.terse is rw = False;
+
+    method nl {
+        $.terse ?? ' ' !! "\n";
+    }
 
     method write($ast, :$token, :$indent=0) {
 
         my $node;
         temp $.indent;
         $.indent ~= ' ' x $indent
-            if $indent;
+            if $indent && ! $.terse;
 
         return '' unless $ast.defined;
 

@@ -123,7 +123,7 @@ class CSS::Writer::Values {
     }
 
     multi method write-value( CSSValue::PropertyList, List $ast ) {
-        sprintf "\{\n%s\n%s\}", join("\n", $ast.map: {$.write( $_, :indent(2) )}), $.indent;
+        join($.nl, '{', $ast.map( {$.write( $_, :indent(2) )}), $.indent ~ '}');
     }
 
     multi method write-value( CSSValue::StringComponent, Str $ast ) {
