@@ -1,6 +1,6 @@
 perl6-CSS-Writer
 ================
-*** Under Construction ***
+*** Under Construction ***.
 
 Description
 ===========
@@ -13,20 +13,20 @@ Based on the objects, values and serialization rules described in http://dev.w3.
 Examples
 ========
 
-serialize a declaration list to CSS
------------------------------------
+Serialize list of declarations
+------------------------------
     use CSS::Writer;
     my $css-writer = CSS::Writer.new( :terse );
     say $css-writer.write-node( :declarations[
                                { :ident<font-size>, :expr[ :pt(12) ] },
-                               { :ident<color>,    :expr[ :ident<white> ] },
-                               { :ident<z-index>,  :expr[ :num(-9) ] },
+                               { :ident<color>,     :expr[ :ident<white> ] },
+                               { :ident<z-index>,   :expr[ :num(-9) ] },
                           ] );
 
     # output: { font-size: 12pt; color: white; z-index: -9; }
 
 
-tidy and minimise CSS
+Tidy and minimise CSS
 ---------------------
     use CSS::Writer;
     use CSS::Grammar::CSS3;

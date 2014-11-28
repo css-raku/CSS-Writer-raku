@@ -7,42 +7,43 @@ class CSS::Writer::Node
 
     use CSS::Grammar::CSS3;
 
+    #| @top-left { margin: 5px; } :=   $.write-node( :at-keyw<@top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] } ] )
     multi method write-node( Str :$at-keyw!, List :$declarations! ) {
         ($.write-node( :$at-keyw ),  $.write-node( :$declarations)).join: ' ';
     }
 
+    #| 42deg   := $.write-node( :angle<42>, :units<deg>) or  $.write-node( :deg(42) )
     multi method write-node( Numeric :$angle!, Any :$units? ) {
         $.write-num( $angle, $units );
     }
 
+    #| @page   := $.write-node( :at-keyw<page> )
     multi method write-node( Str :$at-keyw! ) {
         '@' ~ $.write-node( :ident($at-keyw) );
     }
 
+    #| 'foo', bar, 42 := $.write-node( :args[ :string<foo>, :ident<bar>, :num<42> ] )
     multi method write-node( List :$args! ) {
         @$args.map({ $.write($_) }).join: ', ';
     }
 
+    #| [foo]   := $.write-node( :attrib( :ident<foo> ) )
     multi method write-node( List :$attrib! ) {
         [~] '[', $attrib.map({ $.write( $_ ) }), ']';
     }
 
-    multi method write-node( Str :$attribute-selector! ) {
-        $attribute-selector.lc
-    }
-
+    #| @charset 'utf-8';   := $.write-node( :charset<utf-8> )
     multi method write-node( Str :$charset-rule! ) {
-        [~] '@charset ', $.write( 'string' => $charset-rule ), ';'
+        [~] '@charset ', $.write-node( :string($charset-rule) ), ';'
     }
 
-    multi method write-node( Str :$combinator! ) {
-        $combinator.lc
-    }
-
+    #| rgb(10, 20, 30) := $write-node( :color[ :num(10), :num(20), :num(30) ], :units<rgb> )
+    #| or $write-node( :rgb[ :num(10), :num(20), :num(30) ] )
     multi method write-node( Any :$color!, Any :$units? ) {
         $.write-color( $color, $units );
     }
 
+    #| .my-class := $write-node( :class<my-class> )
     multi method write-node( Str :$class! is copy ) {
         '.' ~ $.write-node( :name($class) );
     }
