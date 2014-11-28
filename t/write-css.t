@@ -34,7 +34,8 @@ for 't/write-css.json'.IO.lines {
     temp $/ = CSS::Grammar::Test::parse-tests(CSS::Grammar::CSS3, $css, :$rule, :$actions, :%expected, :suite($rule) );
 
     my $ast = $/.ast;
-    $ast = {$rule => $ast} if $ast.defined && !$ast.isa('Hash');
+    my $type = $ast.units // $ast.type;
+    $ast = {$type => $ast}; # if $ast.defined && !$ast.isa('Hash');
 
     my $test-name = "css3 $rule round trip: " ~ $css.subst(/\n.*/, ' ...');
 

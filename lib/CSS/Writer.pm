@@ -1,13 +1,9 @@
 use v6;
 
-use CSS::Writer::Objects;
-use CSS::Writer::Values;
-use CSS::Writer::Selectors;
+use CSS::Writer::Node;
 
 class CSS::Writer
-    is CSS::Writer::Objects
-    is CSS::Writer::Values
-    is CSS::Writer::Selectors {
+    is CSS::Writer::Node {
 
     use CSS::AST;
     has Str $.indent is rw = '';
@@ -17,67 +13,31 @@ class CSS::Writer
         $.terse ?? ' ' !! "\n";
     }
 
-    method write($ast, :$token, :$indent=0) {
-
-        my $node;
-        temp $.indent;
-        $.indent ~= ' ' x $indent
-            if $indent && ! $.terse;
+    method write($ast, :$node, :$indent?) {
 
         return '' unless $ast.defined;
+        my $sp = '';
+        temp $.indent;
+        if $indent.defined && !$.terse {
+            $.indent ~= ' ' x $indent;
+            $sp = $.indent;
+        }
 
-        if $token {
-            my $data = $ast{ $token }
-                // die "node does not contain: $token";
-            $node = CSS::AST.token( $data, :type($token));
-        }
-        elsif $ast.can('type') {
-            # already tokenised
-            $node = $ast;
-        }
-        elsif ($ast.isa(Hash) || $ast.isa(Pair)) {
+        if $ast.isa(Hash) || $ast.isa(Pair) {
             # it's a token represented by a type/value pair
-            my ($type, $data, @_guff) = $ast.kv;
-            die "empty AST node" unless $type;
-            die "AST node contains multple tokens: {$ast.keys}"
-                if @_guff;    
-
-            $type = $type.subst(/':'.*/, '');
-
-            $node = CSS::AST.token( $data, :$type);
-        }
-
-        unless $node.defined {
-            note "unable to determine token: {$ast.perl}";
-            return '';
-        }
-
-        my $type-name := ~$node.type
-            or die "untyped object: {$node.perl}";
-        my $units := $node.units;
-
-        my $type = CSS::AST::CSSObject( $type-name )
-            // CSS::AST::CSSValue( $type-name )
-            // CSS::AST::CSSSelector( $type-name );
-
-        if $type {
-            given $type {
-                when CSS::AST::CSSValue {
-                    $.write-value( $type, $node, :$units);
-                }
-                when CSS::AST::CSSObject {
-                    $.write-object( $type, $node, :$units);
-                }
-                when CSS::AST::CSSSelector {
-                    $.write-selector( $type, $node, :$units);
-                }
-                default {die "unhandled type: $type"}
+            my %params = $ast.keys.map: {
+                .subst(/':'.*/, '').subst(/\@/, 'at-keyw') => $ast{$_};
             }
+
+            %params = $node => %params{$node}
+                if $node.defined;
+
+            $sp ~ $.write-node( |%params );
         }
         else {
-            note "unknown type: $type-name";
-            '';
+            warn "dunno how to dispatch: {$ast.perl}";
         }
+
     }
 
 }
