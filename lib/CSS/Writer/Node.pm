@@ -48,6 +48,7 @@ class CSS::Writer::Node
         '.' ~ $.write-node( :name($class) );
     }
 
+    #| { font-size: 12pt; color: white; } := $.write-node( :declarations[ { :ident<font-size>, :expr[ :pt(12) ] }, { :ident<color>, :expr[ :ident<white> ] } ] )
     multi method write-node( List :$declarations! ) {
         my @declarations-indented = do {
 
@@ -62,13 +63,15 @@ class CSS::Writer::Node
         ('{', @declarations-indented, $.indent ~ '}').join: $.nl;
     }
 
+    #| h1 := $.write-node: :element-name<H1>
     multi method write-node( Str :$element-name! ) {
         given $element-name {
             when '*' {'*'}  # wildcard namespace
-            default  { $.write-node( :ident($_) ) }
+            default  { $.write-node( :ident($_) ).lc }
         }
     }
 
+    #| 'foo', bar+42 := $.write-node( :expr[ :string<foo>, :op<,>, :ident<bar>, :op<+>, :num(42) ] )
     multi method write-node( List :$expr! ) {
         my $sep = '';
 
@@ -81,14 +84,17 @@ class CSS::Writer::Node
         });
     }
 
+    #| @font-face { src: 'foo.ttf'; } := $.write-node( :fontface-rule{ :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] } ] } )
     multi method write-node( Hash :$fontface-rule! ) {
         [~] '@font-face ', $.write( $fontface-rule, :node<declarations> );
     }
 
+    #| 42hz   := $.write-node( :freq(42), :units<hz>) or  $.write-node( :hz(42) )
     multi method write-node( Numeric :$freq!, Any :$units? ) {
         $.write-num( $freq, $units );
     }
 
+    #| lang(klingon) := $.write-node( :func{ :ident<lang>, :args[ :ident<klingon> ] } )
     multi method write-node( Hash :$func! is copy ) {
         sprintf '%s(%s)', $.write( $func, :node<ident> ), do {
             when $func<args>:exists {$.write( $func, :node<args> )}
@@ -97,36 +103,44 @@ class CSS::Writer::Node
         }
     }
 
+    #| #My-id := $.write-node( :id<My-id> )
     multi method write-node( Str :$id! is copy ) {
         '#' ~ $.write-node( :name($id) );
     }
 
+    #| -Moz-linear-gradient := $.write-node( :ident<-Moz-linear-gradient> )
     multi method write-node( Str :$ident! is copy ) {
         my $pfx = $ident ~~ s/^"-"// ?? '-' !! '';
         my $minus = $ident ~~ s/^"-"// ?? '\\-' !! '';
-        [~] $pfx, $minus, $.write-node( :name($ident) );
+        [~] $pfx, $minus, $.write-node( :name($ident) )
     }
 
+    #| @import url('example.css') screen and (color); := $.write-node( :import{ :url<example.css>, :media-list[ { :media-query[ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ] } ] } )
     multi method write-node( Hash :$import! ) {
         [~] '@import ', join(' ', <url media-list>.grep({ $import{$_}:exists }).map({ $.write( $import, :node($_) ) })), ';';
     }
 
+    #| 42 := $.write-node: :num(42)
     multi method write-node( Numeric :$int! ) {
         $.write-num( $int );
     }
 
+    #| color := $.write-node: :keyw<Color>
     multi method write-node( Str :$keyw! ) {
         $keyw.lc;
     }
 
+    #| 42mm   := $.write-node( :length(42), :units<mm>) or  $.write-node( :mm(42) )
     multi method write-node( Numeric :$length!, Any :$units? ) {
         $.write-num( $length, $units );
     }
 
+    #| projection, tv := $.write-node( :media-list[ :ident<projection>, :ident<tv> ] )
     multi method write-node( List :$media-list! ) {
         join(', ', $media-list.map({ $.write( $_ ) }) );
     }
 
+    #| screen and (color) := $.write-node( :media-query[ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ] )
     multi method write-node( List :$media-query! ) {
         join(' ', $media-query.map({
             my $css = $.write( $_ );
@@ -140,6 +154,7 @@ class CSS::Writer::Node
         }) );
     }
 
+    #| @media all { body { background: lime; }} := $.write-node( :media-rule{ :media-list[ { :media-query[ :ident<all> ] } ], :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :qname{ :element-name<body> } } ] } ] ], :declarations[ { :ident<background>, :expr[ :ident<lime> ] } ] } } ]} )
     multi method write-node( Hash :$media-rule! ) {
         [~] '@media ', <media-list rule-list>.grep({ $media-rule{$_}:exists }).map({ $.write( $media-rule, :node($_) ) });
     }
