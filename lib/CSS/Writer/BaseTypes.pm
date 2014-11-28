@@ -12,6 +12,10 @@ class CSS::Writer::BaseTypes {
         return ($int == $num ?? $int !! $num) ~ ($units.defined ?? $units.lc !! '');
     }
 
+    multi method write-num( *@args) is default {
+        die "unable to .write-num({[@args].perl})";
+    }
+
     method write-string( Str $str) {
         [~] ("'",
              $str.comb.map({

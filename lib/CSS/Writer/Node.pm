@@ -7,12 +7,12 @@ class CSS::Writer::Node
 
     use CSS::Grammar::CSS3;
 
-    #| @top-left { margin: 5px; } :=   $.write-node( :at-keyw<@top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] } ] )
+    #| @top-left { margin: 5px; } :=   $.write-node( :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] } ] )
     multi method write-node( Str :$at-keyw!, List :$declarations! ) {
         ($.write-node( :$at-keyw ),  $.write-node( :$declarations)).join: ' ';
     }
 
-    #| 42deg   := $.write-node( :angle<42>, :units<deg>) or  $.write-node( :deg(42) )
+    #| 42deg   := $.write-node( :angle(42), :units<deg>) or  $.write-node( :deg(42) )
     multi method write-node( Numeric :$angle!, Any :$units? ) {
         $.write-num( $angle, $units );
     }
@@ -22,28 +22,28 @@ class CSS::Writer::Node
         '@' ~ $.write-node( :ident($at-keyw) );
     }
 
-    #| 'foo', bar, 42 := $.write-node( :args[ :string<foo>, :ident<bar>, :num<42> ] )
+    #| 'foo', bar, 42 := $.write-node( :args[ :string<foo>, :ident<bar>, :num(42) ] )
     multi method write-node( List :$args! ) {
         @$args.map({ $.write($_) }).join: ', ';
     }
 
-    #| [foo]   := $.write-node( :attrib( :ident<foo> ) )
+    #| [foo]   := $.write-node( :attrib[ :ident<foo> ] )
     multi method write-node( List :$attrib! ) {
         [~] '[', $attrib.map({ $.write( $_ ) }), ']';
     }
 
-    #| @charset 'utf-8';   := $.write-node( :charset<utf-8> )
+    #| @charset 'utf-8';   := $.write-node( :charset-rule<utf-8> )
     multi method write-node( Str :$charset-rule! ) {
         [~] '@charset ', $.write-node( :string($charset-rule) ), ';'
     }
 
-    #| rgb(10, 20, 30) := $write-node( :color[ :num(10), :num(20), :num(30) ], :units<rgb> )
-    #| or $write-node( :rgb[ :num(10), :num(20), :num(30) ] )
+    #| rgb(10, 20, 30) := $.write-node( :color[ :num(10), :num(20), :num(30) ], :units<rgb> )
+    #| or $.write-node( :rgb[ :num(10), :num(20), :num(30) ] )
     multi method write-node( Any :$color!, Any :$units? ) {
         $.write-color( $color, $units );
     }
 
-    #| .my-class := $write-node( :class<my-class> )
+    #| .my-class := $.write-node( :class<my-class> )
     multi method write-node( Str :$class! is copy ) {
         '.' ~ $.write-node( :name($class) );
     }
@@ -274,17 +274,18 @@ class CSS::Writer::Node
         sprintf "url(%s)", $.write-string( $url );
     }
 
-    multi method write-node( *%args ) is default {
+    multi method write-node( *%opts ) is default {
 
         use CSS::AST :CSSUnits;
-        for %args.keys {
+        for %opts.keys {
             if my $type = CSSUnits.enums{$_} {
                 # e.g. redispatch $.write-node( :px(12) ) as $.write-node( :length(12), :units<px> )
-                my %new-args = $type => %args{$_}, units => $_;
-                return $.write-node( |%new-args );
+                my %new-opts = $type => %opts{$_}, units => $_;
+                return $.write-node( |%new-opts );
             }
         }
         
-        die "unable to handle struct: {%args.perl}"
+        die "unable to handle struct: {%opts.perl}"
     }
+
 }
