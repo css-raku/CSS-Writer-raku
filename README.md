@@ -5,8 +5,7 @@ perl6-CSS-Writer
 Description
 ===========
 
-AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar produced ASTs.
-Forward compatable with CSS::Drafts.
+AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
 
 Based on the objects, values and serialization rules described in http://dev.w3.org/csswg/cssom/
 
@@ -17,7 +16,7 @@ Serialize list of declarations
 ------------------------------
     use CSS::Writer;
     my $css-writer = CSS::Writer.new( :terse );
-    say $css-writer.write-node( :declarations[
+    say $css-writer.write( :declarations[
                                { :ident<font-size>, :expr[ :pt(12) ] },
                                { :ident<color>,     :expr[ :ident<white> ] },
                                { :ident<z-index>,   :expr[ :num(-9) ] },
@@ -44,7 +43,7 @@ Tidy and minimise CSS
     my $css-writer = CSS::Writer.new( :terse );
     my $ast = css-to-ast( 'H1{  cOlor: RED; z-index  : -3}' );
 
-    say $css-writer.write-node( :stylesheet($ast) );
+    say $css-writer.write( :stylesheet($ast) );
 
     # output: h1 { color: red; z-index: -3; }
 

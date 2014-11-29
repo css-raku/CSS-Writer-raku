@@ -35,17 +35,17 @@ for 't/write-css.json'.IO.lines {
 
     my $ast = $/.ast;
     my $type = $ast.units // $ast.type;
-    $ast = {$type => $ast}; # if $ast.defined && !$ast.isa('Hash');
+    my %node = $type => $ast; # if $ast.defined && !$ast.isa('Hash');
 
     my $test-name = "css3 $rule round trip: " ~ $css.subst(/\n.*/, ' ...');
 
     todo( $todo ) if $todo;
-    is $css-writer.write( $ast ), $expected-out, $test-name
+    is $css-writer.write( |%node ), $expected-out, $test-name
         or diag {suite => $rule, parse => ~$/, ast => $/.ast}.perl;
 
     if my $terse-expected-out = %expected<terse> {
         temp $css-writer.terse = True;
-        is $css-writer.write( $ast ), $terse-expected-out, "$test-name - :terse"
+        is $css-writer.write( |%node ), $terse-expected-out, "$test-name - :terse"
             or diag {suite => $rule, parse => ~$/, ast => $/.ast}.perl;
     }
 }

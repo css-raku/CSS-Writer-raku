@@ -16,7 +16,7 @@ for 't/write-ast.json'.IO.lines {
 
     my $test = from-json($_);
     my $css = $test<css>;
-    my $ast = $test<ast>;
+    my %node = %( $test<ast> );
     my $opt = $test<opt> // {};
 
     if my $skip = $opt<skip> {
@@ -24,8 +24,8 @@ for 't/write-ast.json'.IO.lines {
         next;
     }
 
-    is $css-writer.write( $ast ), $css, "serialize {$ast.keys} to: $css"
-        or diag {ast => $ast}.perl;
+    is $css-writer.write( |%node ), $css, "serialize {%node.keys} to: $css"
+        or diag {node => %node}.perl;
 }
 
 done;

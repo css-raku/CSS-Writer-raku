@@ -29,7 +29,7 @@ class CSS::Writer::BaseTypes {
     proto write-color(List $ast, Str $units --> Str) {*}
 
     multi method write-color(List $ast, 'rgb') {
-        sprintf 'rgb(%s, %s, %s)', $ast.map: { $.write( $_ )};
+        sprintf 'rgb(%s, %s, %s)', $ast.map: { $.dispatch( $_ )};
     }
 
     multi method write-color( List $ast, 'rgba' ) {
@@ -37,15 +37,15 @@ class CSS::Writer::BaseTypes {
         return $.write-color( [ $ast[0..2] ], 'rgb' )
             if $ast[3]<num> == 1.0;
 
-        sprintf 'rgba(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
+        sprintf 'rgba(%s, %s, %s, %s)', $ast.map: {$.dispatch( $_ )};
     }
 
     multi method write-color(List $ast, 'hsl') {
-        sprintf 'hsl(%s, %s, %s)', $ast.map: {$.write( $_ )};
+        sprintf 'hsl(%s, %s, %s)', $ast.map: {$.dispatch( $_ )};
     }
 
     multi method write-color(List $ast, 'hsla') {
-        sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
+        sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.dispatch( $_ )};
     }
 
     multi method write-color(Str $ast, Any $) {
