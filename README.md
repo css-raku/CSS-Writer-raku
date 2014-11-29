@@ -3,13 +3,11 @@ perl6-CSS-Writer
 
 AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
 
-Based on the objects, values and serialization rules described in http://dev.w3.org/csswg/cssom/
-
 Examples
 ========
 
-Serialize list of declarations
-------------------------------
+Serialize a list of declarations
+--------------------------------
     use CSS::Writer;
     my $css-writer = CSS::Writer.new( :terse );
     say $css-writer.write( :declarations[
@@ -42,4 +40,16 @@ Tidy and minimise CSS
     say $css-writer.write( :stylesheet($ast) );
 
     # output: h1 { color: red; z-index: -3; }
+
+
+Usage Notes
+============
+
+-- The initial version CSS::Writer is based on the objects, values and serialization rules described in http://dev.w3.org/csswg/cssom/.
+
+-- colors are currently serialized using `rgb(...)` notation, etc. Options for `#aabbcc` and named color output will be added shortly.
+
+
+
+
 
