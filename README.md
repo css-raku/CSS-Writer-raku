@@ -1,9 +1,5 @@
 perl6-CSS-Writer
 ================
-*** Under Construction ***.
-
-Description
-===========
 
 AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
 
