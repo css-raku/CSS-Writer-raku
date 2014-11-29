@@ -10,8 +10,6 @@ class CSS::Writer
     has Str $.indent is rw = '';
     has Bool $.terse is rw = False;
 
-    # -- node dispatch --
-
     #| @top-left { margin: 5px; } :=   $.write( :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] } ] )
     multi method write( Str :$at-keyw!, List :$declarations! ) {
         ($.write( :$at-keyw ),  $.write( :$declarations)).join: ' ';
@@ -171,6 +169,7 @@ class CSS::Writer
         });
     }
 
+    #| @namespace svg url('http://www.w3.org/2000/svg'); := $.write( :namespace-rule{ :ns-prefix<svg>, :url<http://www.w3.org/2000/svg> } )
     multi method write( Hash :$namespace-rule! ) {
         join(' ', '@namespace', <ns-prefix url>.grep({ $namespace-rule{$_}:exists }).map({ $.dispatch( $namespace-rule, :node($_) ) })) ~ ';';
     }
@@ -309,6 +308,7 @@ class CSS::Writer
         'U+' ~ $range;
     }
 
+    #| url('snoopy.jpg') := $.write( :url<snoopy.jpg> )
     multi method write( Str :$url! ) {
         sprintf "url(%s)", $.write-string( $url );
     }
