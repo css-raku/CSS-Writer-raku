@@ -4,6 +4,7 @@ class CSS::Writer::BaseTypes {
 
     use CSS::Grammar::CSS3;
 
+    # -- numbers -- #
     multi method write-num( 1, 'em' ) { 'em' }
     multi method write-num( 1, 'ex' ) { 'ex' }
 
@@ -16,6 +17,7 @@ class CSS::Writer::BaseTypes {
         die "unable to .write-num({[@args].perl})";
     }
 
+    # -- strings -- #
     method write-string( Str $str) {
         [~] ("'",
              $str.comb.map({
@@ -26,16 +28,52 @@ class CSS::Writer::BaseTypes {
              "'");
     }
 
+    # -- colors -- #
+    multi method coerce-color(Int :$int!)         {$int}
+    multi method coerce-color(Numeric :$num!)     {+sprintf "%d", $num}
+    multi method coerce-color(Numeric :$percent!) {+sprintf "%d", $percent * 2.55}
+    multi method coerce-color is default          {Any}
+
+    multi method color-channel($node) {
+        my $num = $.coerce-color(|%$node)
+            // return;
+        $num = 0   if $num < 0 ;
+        $num = 255 if $num > 255;
+        $num;
+    }
+
+    method write-rgb-mask( List $rgb) {
+        my @mask = $rgb.map: { $.color-channel($_) };
+        return if +@mask != 3 || @mask.first: {!.defined}
+
+        # can we reduce to the three hex digit form?
+        # #aa77ff => #a7f
+        my @mask-terse = @mask.map: { $_ / 17 };
+        my @hex-digits;
+        if @mask-terse.first: {$_ != .Int} {
+            @hex-digits =  @mask.map: {sprintf "%02X", $_};
+        }
+        else {
+            @hex-digits = @mask-terse.map: {sprintf "%X", $_};
+        }
+
+        [~] '#', @hex-digits;
+    }
+
     proto write-color(List $ast, Str $units --> Str) {*}
 
     multi method write-color(List $ast, 'rgb') {
-        sprintf 'rgb(%s, %s, %s)', $ast.map: { $.dispatch( $_ )};
+        my $out = $.write-rgb-mask($ast)
+            if $.rgb-masks;
+        $out // sprintf 'rgb(%s, %s, %s)', $ast.map: { $.dispatch( $_ )};
     }
 
     multi method write-color( List $ast, 'rgba' ) {
 
+        # drop the alpha channel when a == 1.0
         return $.write-color( [ $ast[0..2] ], 'rgb' )
-            if $ast[3]<num> == 1.0;
+            if $ast[3]<num> && $ast[3]<num> == 1.0
+            || $ast[3]<percent> && $ast[3]<percent> == 100.0;
 
         sprintf 'rgba(%s, %s, %s, %s)', $ast.map: {$.dispatch( $_ )};
     }

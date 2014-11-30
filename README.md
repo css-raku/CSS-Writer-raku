@@ -42,12 +42,19 @@ Tidy and minimise CSS
     # output: h1 { color: red; z-index: -3; }
 
 
+Writer Options
+==============
+
+- **`:terse`** write each stylesheet element on a single line, without indentation.
+
+- **`:rgb-masks`** Prefer hex mask notation for RGB colors, .i.e. output `#0085FF #7AF` instead of `rgb(0, 133, 255) rgb(119, 170, 255)`
+
 Usage Notes
 ============
 
--- The initial version CSS::Writer is based on the objects, values and serialization rules described in http://dev.w3.org/csswg/cssom/.
+- The initial version CSS::Writer is based on the objects, values and serialization rules described in http://dev.w3.org/csswg/cssom/.
 
--- colors are currently serialized using `rgb(...)` notation, etc. Options for `#aabbcc` and named color output will be added shortly.
+- colors are currently serialized using `rgb(...)` notation, etc. Options for named color output will be added shortly.
 
 
 

@@ -9,6 +9,7 @@ class CSS::Writer
     use CSS::Grammar::CSS3;
     has Str $.indent is rw = '';
     has Bool $.terse is rw = False;
+    has Bool $.rgb-masks is rw = False;
 
     #| @top-left { margin: 5px; } :=   $.write( :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] } ] )
     multi method write( Str :$at-keyw!, List :$declarations! ) {
@@ -47,7 +48,7 @@ class CSS::Writer
     }
 
     #| .my-class := $.write( :class<my-class> )
-    multi method write( Str :$class! is copy ) {
+    multi method write( Str :$class!) {
         '.' ~ $.write( :name($class) );
     }
 
@@ -96,7 +97,7 @@ class CSS::Writer
     }
 
     #| :lang(klingon) := $.write( :pseudo-func{ :ident<lang>, :args[ :ident<klingon> ] } )
-    multi method write( Hash :$func! is copy ) {
+    multi method write( Hash :$func!) {
         sprintf '%s(%s)', $.dispatch( $func, :node<ident> ), do {
             when $func<args>:exists {$.dispatch( $func, :node<args> )}
             when $func<expr>:exists {$.dispatch( $func, :node<expr> )}
@@ -105,12 +106,12 @@ class CSS::Writer
     }
 
     #| #My-id := $.write( :id<My-id> )
-    multi method write( Str :$id! is copy ) {
+    multi method write( Str :$id!) {
         '#' ~ $.write( :name($id) );
     }
 
     #| -Moz-linear-gradient := $.write( :ident<-Moz-linear-gradient> )
-    multi method write( Str :$ident! is copy ) {
+    multi method write( Str :$ident! is copy) {
         my $pfx = $ident ~~ s/^"-"// ?? '-' !! '';
         my $minus = $ident ~~ s/^"-"// ?? '\\-' !! '';
         [~] $pfx, $minus, $.write( :name($ident) )
@@ -184,7 +185,7 @@ class CSS::Writer
     }
 
     #| 42 := $.write( :num(42) )
-    multi method write( Any :$num! ) {
+    multi method write( Numeric :$num! ) {
         $.write-num( $num )
     }
 

@@ -26,6 +26,12 @@ for 't/write-ast.json'.IO.lines {
 
     is $css-writer.write( |%node ), $css, "serialize {%node.keys} to: $css"
         or diag {node => %node}.perl;
+
+    if my $rgb-masks-css = $test<rgb-masks> {
+        temp $css-writer.rgb-masks = True;
+        is $css-writer.write( |%node ), $rgb-masks-css, "serialize (color-masks) {%node.keys} to: $rgb-masks-css"
+            or diag {node => %node}.perl;
+    }
 }
 
 done;

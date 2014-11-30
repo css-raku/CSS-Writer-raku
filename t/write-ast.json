@@ -1,7 +1,7 @@
 { "ast" : { "expr" : [ { "ident" : "_aBc0" }, { "ident" : "0abc" }, { "ident" : "-x-\"-'-\\" }, {"ident" : "--y" }, {"ident" : "temp@15°C" } ] }, "css" : "_aBc0 0abc -x-\\\"-\\'-\\\\ -\\-y temp\\@15\\B0 C" }
 { "ast" : { "expr" : [ { "string" : "_aBc0" }, { "string" : "0abc" }, { "string" : "-x-\"-'-\\" }, {"string" : "--y" }, {"string" : "temp@15°C" } ] }, "css" : "'_aBc0' '0abc' '-x-\"-\\'-\\\\' '--y' 'temp@15\\B0 C'" }
 {  "ast" : { "rgb" : [ { "num" : 0 }, { "num" : 133 }, { "num" : 255 } ] }, "css" : "rgb(0, 133, 255)" }
-{  "ast" : { "expr" : [ { "rgb" : [ { "num" : 0 }, { "num" : 133 }, { "num" : 255 } ] }, { "op" : "," }, { "rgb" : [ { "percent" : 10 }, { "percent" : 20 }, { "percent" : 30 } ] } ] }, "css" : "rgb(0, 133, 255), rgb(10%, 20%, 30%)" }
+{  "ast" : { "expr" : [ { "rgb" : [ { "num" : -1 }, { "num" : 133 }, { "num" : 256 } ] }, { "rgb" : [ { "percent" : 10 }, { "percent" : 20 }, { "percent" : 30 } ] }, { "rgb" : [ { "num" : 119 }, { "num" : 170 }, { "num" : 255 } ] } ] }, "css" : "rgb(-1, 133, 256) rgb(10%, 20%, 30%) rgb(119, 170, 255)", "rgb-masks" : "#0085FF #19334C #7AF" }
 { "ast" : { "property" : { "ident" : "line-height", "expr" : [ { "px" : 1.1 } ], "prio" : "important" } }, "css" : "line-height: 1.1px !important;" }
 { "ast" : { "qname" : { "element-name" : "div" } }, "css" : "div" }
 { "ast" : { "qname" : { "ns-prefix" : "foo", "element-name" : "h1" } }, "css" : "foo|h1" }
