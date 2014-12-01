@@ -9,6 +9,8 @@ use JSON::Tiny;
 use CSS::Writer;
 
 my $css-writer = CSS::Writer.new;
+my $css-writer_2 = CSS::Writer.new( :color-names );
+my $css-writer_3 = CSS::Writer.new( :color-values );
 
 for 't/write-ast.json'.IO.lines {
 
@@ -29,9 +31,20 @@ for 't/write-ast.json'.IO.lines {
 
     if my $rgb-masks-css = $test<rgb-masks> {
         temp $css-writer.rgb-masks = True;
-        is $css-writer.write( |%node ), $rgb-masks-css, "serialize (color-masks) {%node.keys} to: $rgb-masks-css"
+        is $css-writer.write( |%node ), $rgb-masks-css, "serialize (:rgb-masks) {%node.keys} to: $rgb-masks-css"
             or diag {node => %node}.perl;
     }
+
+    if my $color-names-css = $test<color-names> {
+        is $css-writer_2.write( |%node ), $color-names-css, "serialize (:color-names) {%node.keys} to: $color-names-css"
+            or diag {node => %node}.perl;
+    }
+
+    if my $color-values-css = $test<color-values> {
+        is $css-writer_3.write( |%node ), $color-values-css, "serialize (:color-values) {%node.keys} to: $color-values-css"
+            or diag {node => %node}.perl;
+    }
+
 }
 
 done;

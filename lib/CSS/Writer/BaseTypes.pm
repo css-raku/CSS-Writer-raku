@@ -42,10 +42,7 @@ class CSS::Writer::BaseTypes {
         $num;
     }
 
-    method write-rgb-mask( List $rgb) {
-        my @mask = $rgb.map: { $.color-channel($_) };
-        return if +@mask != 3 || @mask.first: {!.defined}
-
+    method write-rgb-mask( @mask ) {
         # can we reduce to the three hex digit form?
         # #aa77ff => #a7f
         my @mask-terse = @mask.map: { $_ / 17 };
@@ -63,8 +60,21 @@ class CSS::Writer::BaseTypes {
     proto write-color(List $ast, Str $units --> Str) {*}
 
     multi method write-color(List $ast, 'rgb') {
-        my $out = $.write-rgb-mask($ast)
+
+        my @mask = $ast.map: { $.color-channel($_) };
+
+        return if +@mask != 3 || @mask.first: {!.defined}
+
+        if %.color-names {
+            # map to a color name, if possible
+            my $idx = 256 * (256 * @mask[0]  +  @mask[1])  + @mask[2];
+            return %.color-names{ $idx}
+                if %.color-names{ $idx }:exists;
+        }
+
+        my $out = $.write-rgb-mask(@mask)
             if $.rgb-masks;
+
         $out // sprintf 'rgb(%s, %s, %s)', $ast.map: { $.dispatch( $_ )};
     }
 

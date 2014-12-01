@@ -7,9 +7,56 @@ class CSS::Writer
 
     use CSS::Grammar::AST;
     use CSS::Grammar::CSS3;
-    has Str $.indent is rw = '';
-    has Bool $.terse is rw = False;
-    has Bool $.rgb-masks is rw = False;
+
+    has Str $.indent is rw;
+    has Bool $.terse is rw;
+    has Bool $.rgb-masks is rw;
+    has %.color-values is rw;   #- maps color names to rgb values
+    has %.color-names is rw;    #- maps rgb hex codes to named colors
+
+    submethod BUILD(:$!indent='', :$!terse=False, :$!rgb-masks=False, :$color-names, :$color-values is copy) {
+
+        sub build-color-names(%colors) {
+            my %color-names;
+
+            for %colors {
+                my ($name, $rgb) = .kv;
+                my $hex = 256 * (256 * $rgb[0]  +  $rgb[1])  +  $rgb[2];
+                %color-names{ $hex } = $name;
+            }
+
+            return %color-names;
+        }
+
+        if $!terse {
+            $!rgb-masks //= True;
+        }
+
+        if $color-names.defined {
+            die ":color-names and :color-values are mutually exclusive options"
+                if $color-values;
+
+            given $color-names {
+                when Bool { %!color-names = build-color-names( %CSS::Grammar::AST::CSS3-Colors )
+                                if $_; }
+                when Hash { %!color-names = build-color-names( $_ ) }
+                default {
+                    die 'usage :color-names [for CSS3 Colors] or :color-names(%table) [e.g. :color-names(CSS::Grammar::AST::CSS3-Colors)]';
+                }
+            }
+        }
+        elsif $color-values.defined {
+            given $color-values {
+                when Bool { %!color-values = %CSS::Grammar::AST::CSS3-Colors
+                                if $_; }
+                when Hash { %!color-values = %$_ }
+                default {
+                    die 'usage :color-values [for CSS3 Colors] or :color-values(%table) [e.g. :color-values(CSS::Grammar::AST::CSS3-Colors)]';
+                }
+            }
+        }
+
+    }
 
     #| @top-left { margin: 5px; } :=   $.write( :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] } ] )
     multi method write( Str :$at-keyw!, List :$declarations! ) {
@@ -77,9 +124,15 @@ class CSS::Writer
     multi method write( List :$expr! ) {
         my $sep = '';
 
-        [~] @$expr.map( -> $term {
+        [~] @$expr.map( -> $term is copy {
 
             $sep = '' if $term<op> && $term<op>;
+
+            if %.color-values && ($term<ident>:exists) && my $rgb = %.color-values{ $term<ident>.lc } {
+                # substitute a named color with it's rgb value
+                $term = {rgb => $rgb.map({ num => $_})};
+            }
+
             my $out = $sep ~ $.dispatch($term);
             $sep = $term<op> && $term<op> ne ',' ?? '' !! ' ';
             $out;
@@ -363,5 +416,4 @@ class CSS::Writer
         }
 
     }
-
 }

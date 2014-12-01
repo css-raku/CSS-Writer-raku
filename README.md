@@ -6,21 +6,21 @@ AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
 Examples
 ========
 
-Serialize a list of declarations
---------------------------------
+Serialize a list of declarations; converting named colors to RGB masks 
+----------------------------------------------------------------------
     use CSS::Writer;
-    my $css-writer = CSS::Writer.new( :terse );
+    my $css-writer = CSS::Writer.new( :terse, :color-values, :rgb-masks );
     say $css-writer.write( :declarations[
                                { :ident<font-size>, :expr[ :pt(12) ] },
                                { :ident<color>,     :expr[ :ident<white> ] },
                                { :ident<z-index>,   :expr[ :num(-9) ] },
                           ] );
 
-    # output: { font-size: 12pt; color: white; z-index: -9; }
+    # output: { font-size: 12pt; color: #FFF; z-index: -9; }
 
 
-Tidy and minimise CSS
----------------------
+Tidy and reduce size of CSS
+---------------------------
     use CSS::Writer;
     use CSS::Grammar::CSS3;
 
@@ -45,16 +45,19 @@ Tidy and minimise CSS
 Writer Options
 ==============
 
-- **`:terse`** write each stylesheet element on a single line, without indentation.
+- **`:color-values`** Convert color names to RGB values
+
+- **`:color-names`** Convert RGB values to color names
 
 - **`:rgb-masks`** Prefer hex mask notation for RGB colors, .i.e. output `#0085FF #7AF` instead of `rgb(0, 133, 255) rgb(119, 170, 255)`
+
+- **`:terse`** write each stylesheet element on a single line, without indentation.
 
 Usage Notes
 ============
 
 - The initial version CSS::Writer is based on the objects, values and serialization rules described in http://dev.w3.org/csswg/cssom/.
 
-- colors are currently serialized using `rgb(...)` notation, etc. Options for named color output will be added shortly.
 
 
 
