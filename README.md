@@ -1,13 +1,11 @@
-perl6-CSS-Writer
-================
+# perl6-CSS-Writer
 
 AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
 
-Examples
-========
+## Examples
 
-Serialize a list of declarations; converting named colors to RGB masks 
-----------------------------------------------------------------------
+
+#### Serialize a list of declarations; converting named colors to RGB masks 
     use CSS::Writer;
     my $css-writer = CSS::Writer.new( :terse, :color-values, :rgb-masks );
     say $css-writer.write( :declarations[
@@ -19,8 +17,7 @@ Serialize a list of declarations; converting named colors to RGB masks
     # output: { font-size: 12pt; color: #FFF; z-index: -9; }
 
 
-Tidy and reduce size of CSS
----------------------------
+#### Tidy and reduce size of CSS
     use CSS::Writer;
     use CSS::Grammar::CSS3;
 
@@ -42,8 +39,7 @@ Tidy and reduce size of CSS
     # output: h1 { color: red; z-index: -3; }
 
 
-Writer Options
-==============
+## Writer Options
 
 - **`:color-values`** Convert color names to RGB values
 
@@ -53,8 +49,7 @@ Writer Options
 
 - **`:terse`** write each stylesheet element on a single line, without indentation.
 
-Usage Notes
-============
+## Usage Notes
 
 - The initial version CSS::Writer is based on the objects, values and serialization rules described in http://dev.w3.org/csswg/cssom/.
 
