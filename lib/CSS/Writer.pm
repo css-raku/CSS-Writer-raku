@@ -10,11 +10,11 @@ class CSS::Writer
 
     has Str $.indent is rw;
     has Bool $.terse is rw;
-    has Bool $.rgb-masks is rw;
+    has Bool $.color-masks is rw;
     has %.color-values is rw;   #- maps color names to rgb values
     has %.color-names is rw;    #- maps rgb hex codes to named colors
 
-    submethod BUILD(:$!indent='', :$!terse=False, :$!rgb-masks=False, :$color-names, :$color-values is copy) {
+    submethod BUILD(:$!indent='', :$!terse=False, :$!color-masks=False, :$color-names, :$color-values is copy) {
 
         sub build-color-names(%colors) {
             my %color-names;
@@ -29,7 +29,7 @@ class CSS::Writer
         }
 
         if $!terse {
-            $!rgb-masks //= True;
+            $!color-masks //= True;
         }
 
         if $color-names.defined {

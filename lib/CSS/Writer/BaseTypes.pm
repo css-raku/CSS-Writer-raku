@@ -73,7 +73,7 @@ class CSS::Writer::BaseTypes {
         }
 
         my $out = $.write-rgb-mask(@mask)
-            if $.rgb-masks;
+            if $.color-masks;
 
         $out // sprintf 'rgb(%s, %s, %s)', $ast.map: { $.dispatch( $_ )};
     }

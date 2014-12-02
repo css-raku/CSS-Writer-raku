@@ -7,7 +7,7 @@ AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
 
 #### Serialize a list of declarations; converting named colors to RGB masks 
     use CSS::Writer;
-    my $css-writer = CSS::Writer.new( :terse, :color-values, :rgb-masks );
+    my $css-writer = CSS::Writer.new( :terse, :color-values, :color-masks );
     say $css-writer.write( :declarations[
                                { :ident<font-size>, :expr[ :pt(12) ] },
                                { :ident<color>,     :expr[ :ident<white> ] },
@@ -45,7 +45,7 @@ AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
 
 - **`:color-names`** Convert RGB values to color names
 
-- **`:rgb-masks`** Prefer hex mask notation for RGB colors, .i.e. output `#0085FF #7AF` instead of `rgb(0, 133, 255) rgb(119, 170, 255)`
+- **`:color-masks`** Prefer hex mask notation for RGB colors, .i.e. output `#0085FF #7AF` instead of `rgb(0, 133, 255) rgb(119, 170, 255)`
 
 - **`:terse`** write each stylesheet element on a single line, without indentation.
 

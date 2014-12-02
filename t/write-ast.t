@@ -29,9 +29,9 @@ for 't/write-ast.json'.IO.lines {
     is $css-writer.write( |%node ), $css, "serialize {%node.keys} to: $css"
         or diag {node => %node}.perl;
 
-    if my $rgb-masks-css = $test<rgb-masks> {
-        temp $css-writer.rgb-masks = True;
-        is $css-writer.write( |%node ), $rgb-masks-css, "serialize (:rgb-masks) {%node.keys} to: $rgb-masks-css"
+    if my $color-masks-css = $test<color-masks> {
+        temp $css-writer.color-masks = True;
+        is $css-writer.write( |%node ), $color-masks-css, "serialize (:color-masks) {%node.keys} to: $color-masks-css"
             or diag {node => %node}.perl;
     }
 
