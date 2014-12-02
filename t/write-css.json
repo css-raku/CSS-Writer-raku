@@ -25,8 +25,8 @@
 [ "length", "2.5px" ]
 [ "length", "4.0Em", { "out" : "4em" }  ]
 // <frequency>
-//[ "frequency", "45hz" ]
-//[ "frequency", ".1Khz", { "out" : "100hz" } ]
+[ "frequency", "45hz" ]
+[ "frequency", ".1Khz", { "out" : "100hz" } ]
 // <identifier>
 //[ "identifier", "Hi\\021 th\\0065 re", { "skip" : "n/a to grammars" } ]
 // <percentage>
@@ -66,7 +66,7 @@
 // outlined in the Unicode specification". So both "grammar" and "module" serializations are legitimate
 [ "declaration", "font-family: MainText;", { "out" : "font-family: maintext;" } ]
 [ "declaration", "font-variant: discretionary-ligatures character-variant(leo-B, leo-M, leo-N, leo-T, leo-U);", { "out" : "font-variant: discretionary-ligatures character-variant(leo-b, leo-m, leo-n, leo-t, leo-u);" } ]
-//[ "declaration-list", "font-size:0px;z-index: -9;position:absolute;left:-999px", { "out" : "  font-size: 0px;\n  z-index: -9;\n  position: absolute;\n  left: -999px;" } ]
+[ "declarations", "{font-size:0px;z-index: -9;position:absolute;left:-999px}", { "out" : "{\n  font-size: 0px;\n  z-index: -9;\n  position: absolute;\n  left: -999px;\n}" } ]
 [ "selector", "#my-id ::first-line :lang(fr)" ]
 [ "ruleset", "H1 { font-weight: bold; }", { "out" : "h1 {\n  font-weight: bold;\n}" } ]
 [ "stylesheet", "H1 {font-weight: bold} H2 { font-style: italic ; }", { "out" : "h1 {\n  font-weight: bold;\n}\n\nh2 {\n  font-style: italic;\n}" } ]

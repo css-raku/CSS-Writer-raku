@@ -144,9 +144,16 @@ class CSS::Writer
         [~] '@font-face ', $.dispatch( $fontface-rule, :node<declarations> );
     }
 
-    #| 42hz   := $.write( :freq(42), :units<hz>) or $.write( :hz(42) )
-    multi method write( Numeric :$freq!, Any :$units? ) {
-        $.write-num( $freq, $units );
+    #| 420hz   := $.write( :freq(420), :units<hz>) or $.write( :khz(.42) )
+    multi method write( Numeric :$freq!, Str :$units ) {
+        given $units {
+            when 'hz' {$.write-num( $freq, 'hz' )}
+            when 'khz' {$.write-num( $freq * 1000, 'hz' )}
+            default {die "unhandled frequency unit: $units";}
+        }
+    }
+    multi method write( Numeric :$freq!, :$units='khz' ) {
+        $.write-num( $freq * 1000, 'hz' );
     }
 
     #| :lang(klingon) := $.write( :pseudo-func{ :ident<lang>, :args[ :ident<klingon> ] } )
