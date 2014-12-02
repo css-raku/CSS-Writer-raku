@@ -197,6 +197,11 @@ class CSS::Writer
         $.write-num( $length, $units );
     }
 
+    #| @top-left { margin: 5px; } :=   $.write( :margin-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] } ] } )
+    multi method write( Hash :$margin-rule! ) {
+        $.dispatch( $margin-rule );
+    }
+
     #| projection, tv := $.write( :media-list[ :ident<projection>, :ident<tv> ] )
     multi method write( List :$media-list! ) {
         join(', ', $media-list.map({ $.dispatch( $_ ) }) );
