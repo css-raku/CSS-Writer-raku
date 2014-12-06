@@ -41,11 +41,11 @@ AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
 
 ## Writer Options
 
-- **`:color-values`** Convert color names to RGB values
+- **`:color-masks`** Prefer hex mask notation for RGB values, .e.g. `#0085FF` instead of `rgb(0, 133, 255)`
 
 - **`:color-names`** Convert RGB values to color names
 
-- **`:color-masks`** Prefer hex mask notation for RGB colors, .i.e. output `#0085FF #7AF` instead of `rgb(0, 133, 255) rgb(119, 170, 255)`
+- **`:color-values`** Convert color names to RGB values
 
 - **`:terse`** write each stylesheet element on a single line, without indentation.
 

@@ -94,6 +94,17 @@ class CSS::Writer
         $.write-color( $color, $units );
     }
 
+    #| /* This is a comment * / */ := $.write( :comment("This is a comment */") )
+    multi method write( Str :$comment! ) {
+
+        if $comment ~~ /^ <CSS::Grammar::CSS3::comment> $/ {
+            $comment;
+        }
+        else {
+            [~] '/* ', $comment.trim.subst(/'*/'/, '* /'), ' */';
+        }
+    }
+
     #| .my-class := $.write( :class<my-class> )
     multi method write( Str :$class!) {
         '.' ~ $.write( :name($class) );
@@ -334,7 +345,7 @@ class CSS::Writer
         [~] $simple-selector.map({ $.dispatch( $_ ) })
     }
 
-    #| 'Hi\' there\FA !' := $.write( :string("Hi' there\x[fa]!") )
+    #| 'I\'d like some \BEE f!' := $.write( :string("I'd like some \x[bee]f!") )
     multi method write( Str :$string! ) {
         $.write-string($string);
     }
