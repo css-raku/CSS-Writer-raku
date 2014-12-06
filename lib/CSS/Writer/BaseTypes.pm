@@ -75,7 +75,7 @@ class CSS::Writer::BaseTypes {
         my $out = $.write-rgb-mask(@mask)
             if $.color-masks;
 
-        $out // sprintf 'rgb(%s, %s, %s)', $ast.map: { $.dispatch( $_ )};
+        $out // sprintf 'rgb(%s, %s, %s)', $ast.map: { $.write-obj( $_ )};
     }
 
     multi method write-color( List $ast, 'rgba' ) {
@@ -85,15 +85,15 @@ class CSS::Writer::BaseTypes {
             if $ast[3]<num> && $ast[3]<num> == 1.0
             || $ast[3]<percent> && $ast[3]<percent> == 100.0;
 
-        sprintf 'rgba(%s, %s, %s, %s)', $ast.map: {$.dispatch( $_ )};
+        sprintf 'rgba(%s, %s, %s, %s)', $ast.map: {$.write-obj( $_ )};
     }
 
     multi method write-color(List $ast, 'hsl') {
-        sprintf 'hsl(%s, %s, %s)', $ast.map: {$.dispatch( $_ )};
+        sprintf 'hsl(%s, %s, %s)', $ast.map: {$.write-obj( $_ )};
     }
 
     multi method write-color(List $ast, 'hsla') {
-        sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.dispatch( $_ )};
+        sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.write-obj( $_ )};
     }
 
     multi method write-color(Str $ast, Any $) {

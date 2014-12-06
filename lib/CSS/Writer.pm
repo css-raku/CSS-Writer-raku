@@ -75,12 +75,12 @@ class CSS::Writer
 
     #| 'foo', bar, 42 := $.write( :args[ :string<foo>, :ident<bar>, :num(42) ] )
     multi method write( List :$args! ) {
-        @$args.map({ $.dispatch($_) }).join: ', ';
+        @$args.map({ $.write-obj($_) }).join: ', ';
     }
 
     #| [foo]   := $.write( :attrib[ :ident<foo> ] )
     multi method write( List :$attrib! ) {
-        [~] '[', $attrib.map({ $.dispatch( $_ ) }), ']';
+        [~] '[', $attrib.map({ $.write-obj( $_ ) }), ']';
     }
 
     #| @charset 'utf-8';   := $.write( :charset-rule<utf-8> )
@@ -117,7 +117,7 @@ class CSS::Writer
                 ?? %(property => $_)
                 !! $_;
 
-            $.dispatch( $prop, :indent(2) );
+            $.write-obj( $prop, :indent(2) );
         };
 
         ('{', @decls-indented, $.indent ~ '}').join: $.nl;
@@ -144,7 +144,7 @@ class CSS::Writer
                 $term = {rgb => $rgb.map({ num => $_})};
             }
 
-            my $out = $sep ~ $.dispatch($term);
+            my $out = $sep ~ $.write-obj($term);
             $sep = $term<op> && $term<op> ne ',' ?? '' !! ' ';
             $out;
         });
@@ -152,7 +152,7 @@ class CSS::Writer
 
     #| @font-face { src: 'foo.ttf'; } := $.write( :fontface-rule{ :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] } ] } )
     multi method write( Hash :$fontface-rule! ) {
-        [~] '@font-face ', $.dispatch( $fontface-rule, :node<declarations> );
+        [~] '@font-face ', $.write-obj( $fontface-rule, :node<declarations> );
     }
 
     #| 420hz   := $.write( :freq(420), :units<hz>) or $.write( :khz(.42) )
@@ -169,9 +169,9 @@ class CSS::Writer
 
     #| :lang(klingon) := $.write( :pseudo-func{ :ident<lang>, :args[ :ident<klingon> ] } )
     multi method write( Hash :$func!) {
-        sprintf '%s(%s)', $.dispatch( $func, :node<ident> ), do {
-            when $func<args>:exists {$.dispatch( $func, :node<args> )}
-            when $func<expr>:exists {$.dispatch( $func, :node<expr> )}
+        sprintf '%s(%s)', $.write-obj( $func, :node<ident> ), do {
+            when $func<args>:exists {$.write-obj( $func, :node<args> )}
+            when $func<expr>:exists {$.write-obj( $func, :node<expr> )}
             default {''};
         }
     }
@@ -190,7 +190,7 @@ class CSS::Writer
 
     #| @import url('example.css') screen and (color); := $.write( :import{ :url<example.css>, :media-list[ { :media-query[ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ] } ] } )
     multi method write( Hash :$import! ) {
-        [~] '@import ', join(' ', <url media-list>.grep({ $import{$_}:exists }).map({ $.dispatch( $import, :node($_) ) })), ';';
+        [~] '@import ', join(' ', <url media-list>.grep({ $import{$_}:exists }).map({ $.write-obj( $import, :node($_) ) })), ';';
     }
 
     #| 42 := $.write: :num(42)
@@ -210,18 +210,18 @@ class CSS::Writer
 
     #| @top-left { margin: 5px; } :=   $.write( :margin-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] } ] } )
     multi method write( Hash :$margin-rule! ) {
-        $.dispatch( $margin-rule );
+        $.write-obj( $margin-rule );
     }
 
     #| projection, tv := $.write( :media-list[ :ident<projection>, :ident<tv> ] )
     multi method write( List :$media-list! ) {
-        join(', ', $media-list.map({ $.dispatch( $_ ) }) );
+        join(', ', $media-list.map({ $.write-obj( $_ ) }) );
     }
 
     #| screen and (color) := $.write( :media-query[ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ] )
     multi method write( List :$media-query! ) {
         join(' ', $media-query.map({
-            my $css = $.dispatch( $_ );
+            my $css = $.write-obj( $_ );
 
             if .<property> {
                 # e.g. color:blue => (color:blue)
@@ -234,7 +234,7 @@ class CSS::Writer
 
     #| @media all { body { background: lime; }} := $.write( :media-rule{ :media-list[ { :media-query[ :ident<all> ] } ], :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<body> } ] } ] ], :declarations[ { :ident<background>, :expr[ :ident<lime> ] } ] } } ]} )
     multi method write( Hash :$media-rule! ) {
-        ('@media', <media-list rule-list>.grep({ $media-rule{$_}:exists }).map({ $.dispatch( $media-rule, :node($_) ) })).join: ' ';
+        ('@media', <media-list rule-list>.grep({ $media-rule{$_}:exists }).map({ $.write-obj( $media-rule, :node($_) ) })).join: ' ';
     }
 
     #| hi\! := $.write( :name("hi\x021") )
@@ -248,7 +248,7 @@ class CSS::Writer
 
     #| @namespace svg url('http://www.w3.org/2000/svg'); := $.write( :namespace-rule{ :ns-prefix<svg>, :url<http://www.w3.org/2000/svg> } )
     multi method write( Hash :$namespace-rule! ) {
-        join(' ', '@namespace', <ns-prefix url>.grep({ $namespace-rule{$_}:exists }).map({ $.dispatch( $namespace-rule, :node($_) ) })) ~ ';';
+        join(' ', '@namespace', <ns-prefix url>.grep({ $namespace-rule{$_}:exists }).map({ $.write-obj( $namespace-rule, :node($_) ) })) ~ ';';
     }
 
     #| svg := $.write( :ns-prefix<svg> )
@@ -272,7 +272,7 @@ class CSS::Writer
 
     #| @page :first { margin: 5mm; } := $.write( :page-rule{ :pseudo-class<first>, :declarations[ { :ident<margin>, :expr[ :mm(5) ] } ] } )
     multi method write( Hash :$page-rule! ) {
-        join(' ', '@page', <pseudo-class declarations>.grep({ $page-rule{$_}:exists }).map({ $.dispatch( $page-rule, :node($_) ) }) );
+        join(' ', '@page', <pseudo-class declarations>.grep({ $page-rule{$_}:exists }).map({ $.write-obj( $page-rule, :node($_) ) }) );
     }
 
     #| 100% := $.write( :percent(100) )
@@ -283,13 +283,13 @@ class CSS::Writer
     #| color: red !important; := $.write( :property{ :ident<color>, :expr[ :ident<red> ], :prio<important> } )
     multi method write( Hash :$property! ) {
         my $expr = $property<expr>:exists
-            ?? ': ' ~ $.dispatch($property, :node<expr>)
+            ?? ': ' ~ $.write-obj($property, :node<expr>)
             !! '';
         my $prio = $property<prio>
             ?? ' !' ~ $property<prio>
             !! '';
 
-        [~] $.dispatch( $property, :node<ident> ), $expr, $prio, ';';
+        [~] $.write-obj( $property, :node<ident> ), $expr, $prio, ';';
     }
 
     #| :first := $.write: :pseudo-class<first>
@@ -309,8 +309,8 @@ class CSS::Writer
 
     #| svg|circle := $.write( :qname{ :ns-prefix<svg>, :element-name<circle> } )
     multi method write( Hash :$qname! ) {
-        my $out = $.dispatch($qname, :node<element-name>);
-        $out = [~] $.dispatch($qname, :node<ns-prefix>), '|', $out
+        my $out = $.write-obj($qname, :node<element-name>);
+        $out = [~] $.write-obj($qname, :node<ns-prefix>), '|', $out
             if $qname<ns-prefix>:exists;
         $out;
     }
@@ -322,27 +322,27 @@ class CSS::Writer
 
     #| { h1 { margin: 5pt; } h2 { margin: 3pt; color: red; }} := $.write( :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h1> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(5) ] } ] } }, { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h2> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(3) ] }, { :ident<color>, :expr[ :ident<red> ] } ] } } ])
     multi method write( List :$rule-list! ) {
-        '{ ' ~ $rule-list.map( { $.dispatch($_) } ).join($.nl) ~ '}';
+        '{ ' ~ $rule-list.map( { $.write-obj($_) } ).join($.nl) ~ '}';
     }
 
     #| a:hover { color: green; } := $.write( :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<a> }, { :pseudo-class<hover> } ] } ] ], :declarations[ { :ident<color>, :expr[ :ident<green> ] } ] } )
     multi method write( Hash :$ruleset! ) {
-        sprintf "%s %s", $.dispatch($ruleset, :node<selectors>), $.dispatch($ruleset, :node<declarations>);
+        sprintf "%s %s", $.write-obj($ruleset, :node<selectors>), $.write-obj($ruleset, :node<declarations>);
     }
 
     #| #container * := $.write( :selector[ { :id<container>}, { :element-name<*> } ] )
     multi method write( List :$selector! ) {
-        $selector.map({ $.dispatch( $_ ) }).join(' ');
+        $selector.map({ $.write-obj( $_ ) }).join(' ');
     }
 
     #| h1, [lang=en] := $.write( :selectors[ :selector[ { :simple-selector[ { :element-name<h1> } ] } ], :selector[ :simple-selector[ { :attrib[ :ident<lang>, :op<=>, :ident<en> ] } ] ] ] )
     multi method write( List :$selectors! ) {
-        $selectors.map({ $.dispatch( $_ ) }).join(', ');
+        $selectors.map({ $.write-obj( $_ ) }).join(', ');
     }
 
     #| .foo:bar#baz := $.write: :simple-selector[ :class<foo>, :pseudo-class<bar>, :id<baz> ]
     multi method write( List :$simple-selector! ) {
-        [~] $simple-selector.map({ $.dispatch( $_ ) })
+        [~] $simple-selector.map({ $.write-obj( $_ ) })
     }
 
     #| 'I\'d like some \BEE f!' := $.write( :string("I'd like some \x[bee]f!") )
@@ -353,7 +353,7 @@ class CSS::Writer
     #| h1 { color: blue; } := $.write( :stylesheet[ { :ruleset{ :selectors[ { :selector[ { :simple-selector[ { :qname{ :element-name<h1> } } ] } ] } ], :declarations[ { :ident<color>, :expr[ { :ident<blue> } ] } ] } } ] )
     multi method write( List :$stylesheet! ) {
         my $sep = $.terse ?? "\n" !! "\n\n";
-        join($sep, $stylesheet.map({ $.dispatch( $_ ) }) );
+        join($sep, $stylesheet.map({ $.write-obj( $_ ) }) );
     }
 
     #| 20s := $.write( :time(20), :units<s> ) or $.write( :s(20) )
@@ -413,9 +413,8 @@ class CSS::Writer
         $.terse ?? ' ' !! "\n";
     }
 
-    method dispatch($ast, :$node, :$indent?) {
+    method write-obj($ast, :$node, :$indent?) {
 
-        return '' unless $ast.defined;
         my $sp = '';
         temp $.indent;
         if $indent.defined && !$.terse {
@@ -425,18 +424,15 @@ class CSS::Writer
 
         if $ast.isa(Hash) || $ast.isa(Pair) {
             # it's a token represented by a type/value pair
-            my %params = $ast.keys.map: {
-                .subst(/':'.*/, '') => $ast{$_};
-            }
-
-            %params = $node => %params{$node}
-                if $node.defined;
+            my %params = $node.defined
+                ?? $node => $ast{$node}
+                !! $ast.keys.map: { .subst(/':'.*/, '') => $ast{$_} };
 
             $sp ~ $.write( |%params );
         }
         else {
             warn "dunno how to dispatch: {$ast.perl}";
+            '';
         }
-
     }
 }
