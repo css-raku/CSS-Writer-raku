@@ -75,7 +75,7 @@ class CSS::Writer
 
     #| 'foo', bar, 42 := $.write( :args[ :string<foo>, :ident<bar>, :num(42) ] )
     multi method write( List :$args! ) {
-        @$args.map({ $.write-obj($_) }).join: ', ';
+        $args.map({ $.write-obj($_) }).join: ', ';
     }
 
     #| [foo]   := $.write( :attrib[ :ident<foo> ] )
@@ -135,7 +135,7 @@ class CSS::Writer
     multi method write( List :$expr! ) {
         my $sep = '';
 
-        [~] @$expr.map( -> $term is copy {
+        [~] $expr.map( -> $term is copy {
 
             $sep = '' if $term<op> && $term<op>;
 
@@ -364,7 +364,7 @@ class CSS::Writer
     #| U+A?? := $.write( :unicode-range[0xA00, 0xAFF] )
     multi method write( List :$unicode-range! ) {
         my $range;
-        my ($lo, $hi) = @$unicode-range.map: {sprintf("%X", $_)};
+        my ($lo, $hi) = $unicode-range.map: {sprintf("%X", $_)};
 
         if !$lo eq $hi {
             # single value

@@ -45,14 +45,10 @@ class CSS::Writer::BaseTypes {
     method write-rgb-mask( @mask ) {
         # can we reduce to the three hex digit form?
         # #aa77ff => #a7f
-        my @mask-terse = @mask.map: { $_ / 17 };
-        my @hex-digits;
-        if @mask-terse.first: {$_ != .Int} {
-            @hex-digits =  @mask.map: {sprintf "%02X", $_};
-        }
-        else {
-            @hex-digits = @mask-terse.map: {sprintf "%X", $_};
-        }
+        my $reducable = [&&] @mask.map: { $_ %% 17 };
+        my @hex-digits = $reducable
+            ?? @mask.map: {sprintf "%X", $_ / 17}
+            !! @mask.map: {sprintf "%02X", $_ };
 
         [~] '#', @hex-digits;
     }

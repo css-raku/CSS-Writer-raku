@@ -31,11 +31,11 @@ for 't/write-css.json'.IO.lines {
     my $expected-out = %expected<out> // $css;
     my $todo = %expected<todo>:delete;
 
-    temp $/ = CSS::Grammar::Test::parse-tests(CSS::Grammar::CSS3, $css, :$rule, :$actions, :%expected, :suite($rule) );
+    temp $/ = CSS::Grammar::Test::parse-tests(CSS::Grammar::CSS3, $css, :$rule, :$actions, :%expected, :suite<css3> );
 
     my $ast = $/.ast;
     my $type = $ast.units // $ast.type;
-    my %node = $type => $ast; # if $ast.defined && !$ast.isa('Hash');
+    my %node = $type => $ast;
 
     my $test-name = "css3 $rule round trip: " ~ $css.subst(/\n.*/, ' ...');
 
