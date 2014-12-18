@@ -34,8 +34,7 @@ for 't/write-css.json'.IO.lines {
     temp $/ = CSS::Grammar::Test::parse-tests(CSS::Grammar::CSS3, $css, :$rule, :$actions, :%expected, :suite<css3> );
 
     my $ast = $/.ast;
-    my $type = $ast.units // $ast.type;
-    my %node = $type => $ast;
+    my %node = $ast.kv;
 
     todo( $todo ) if $todo;
     is $css-writer.write( |%node ), $expected-out, "css3 $rule round trip"
