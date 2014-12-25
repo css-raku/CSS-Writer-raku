@@ -1,27 +1,31 @@
 # perl6-CSS-Writer
 
-AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
+AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar.
 
 ## Examples
 
 
-#### Serialize a list of declarations; converting named colors to RGB masks 
+#### Serialize a declaration (ruleset); converting named colors to RGB masks 
     use CSS::Writer;
     my $css-writer = CSS::Writer.new( :terse, :color-values, :color-masks );
-    say $css-writer.write( :declarations[
-                               { :ident<font-size>, :expr[ :pt(12) ] },
-                               { :ident<color>,     :expr[ :ident<white> ] },
-                               { :ident<z-index>,   :expr[ :num(-9) ] },
-                          ] );
+    say $css-writer.write(
+        :ruleset{
+            :selectors[ :selector[ { :simple-selector[ { :element-name<h1> } ] } ] ],
+            :declarations[
+                 { :ident<font-size>, :expr[ :pt(12) ] },
+                 { :ident<color>,     :expr[ :ident<white> ] },
+                 { :ident<z-index>,   :expr[ :num(-9) ] },
+                ],
+        });
 
-    # output: { font-size: 12pt; color: #FFF; z-index: -9; }
+    # output: h1 { font-size: 12pt; color: #FFF; z-index: -9; }
 
 
 #### Tidy and reduce size of CSS
     use CSS::Writer;
     use CSS::Grammar::CSS3;
 
-    sub css-to-ast($css) {
+    sub parse-stylesheet($css) {
         use CSS::Grammar::CSS3;
         use CSS::Grammar::Actions;
         my $actions = CSS::Grammar::Actions.new;
@@ -32,9 +36,9 @@ AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar ASTs.
     }
 
     my $css-writer = CSS::Writer.new( :terse );
-    my $ast = css-to-ast( 'H1{  cOlor: RED; z-index  : -3}' );
+    my $stylesheet = parse-stylesheet( 'H1{  cOlor: RED; z-index  : -3}' );
 
-    say $css-writer.write( :stylesheet($ast) );
+    say $css-writer.write-obj( $stylesheet );
 
     # output: h1 { color: red; z-index: -3; }
 
