@@ -117,7 +117,6 @@ class CSS::Writer
                 ?? %(property => $_)
                 !! $_;
 
-warn :$prop.perl;
             $.write-indented( $prop, 2);
         };
 
