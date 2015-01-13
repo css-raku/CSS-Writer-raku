@@ -21,6 +21,8 @@ class CSS::Writer
 
             for %colors {
                 my ($name, $rgb) = .kv;
+                # output as ...gray not ...grey
+                next if $name ~~ /grey/;
                 my $hex = 256 * (256 * $rgb[0]  +  $rgb[1])  +  $rgb[2];
                 %color-names{ $hex } = $name;
             }
