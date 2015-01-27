@@ -129,7 +129,7 @@ class CSS::Writer
     multi method write( Str :$element-name! ) {
         given $element-name {
             when '*' {'*'}  # wildcard namespace
-            default  { $.write( :ident($_) ).lc }
+            default  { $.write( :ident( .lc ) ) }
         }
     }
 
@@ -329,7 +329,7 @@ class CSS::Writer
 
     #| a:hover { color: green; } := $.write( :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<a> }, { :pseudo-class<hover> } ] } ] ], :declarations[ { :ident<color>, :expr[ :ident<green> ] } ] } )
     multi method write( Hash :$ruleset! ) {
-        sprintf "%s %s", $.write($ruleset, :node<selectors>), $.write($ruleset, :node<declarations>);
+        [~] $.write($ruleset, :node<selectors>), ' ', $.write($ruleset, :node<declarations>);
     }
 
     #| #container * := $.write( :selector[ { :id<container>}, { :element-name<*> } ] )
@@ -425,14 +425,12 @@ class CSS::Writer
     # -- helper methods --
 
     #| handle indentation.
-    multi method write-indented( Any $ast, Int $indent! where !$.terse) {
+    method write-indented( Any $ast, Int $indent!) {
         my $sp = '';
         temp $.indent;
-        $.indent ~= ' ' x $indent;
+        $.indent ~= ' ' x $indent
+            unless $.terse;
         $.indent ~ $.write( $ast );
-    }
-    multi method write-indented( Any $ast, Int $_indent ) is default {
-        $.write( $ast );
     }
 
     method nl {
