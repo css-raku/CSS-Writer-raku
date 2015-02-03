@@ -108,14 +108,11 @@ class CSS::Writer
     }
 
     #| /* This is a comment * / */ := $.write( :comment("This is a comment */") )
+    multi method write( Str :$comment! where /^ <CSS::Grammar::CSS3::comment> $/ ) {
+        $comment;
+    }
     multi method write( Str :$comment! ) {
-
-        if $comment ~~ /^ <CSS::Grammar::CSS3::comment> $/ {
-            $comment;
-        }
-        else {
-            [~] '/* ', $comment.trim.subst(/'*/'/, '* /'), ' */';
-        }
+        [~] '/* ', $comment.trim.subst(/'*/'/, '* /'), ' */';
     }
 
     #| .my-class := $.write( :class<my-class> )
@@ -175,9 +172,6 @@ class CSS::Writer
             when 'khz' {$.write-num( $freq * 1000, 'hz' )}
             default {die "unhandled frequency unit: $units";}
         }
-    }
-    multi method write( Numeric :$freq!, :$units='khz' ) {
-        $.write-num( $freq * 1000, 'hz' );
     }
 
     #| :lang(klingon) := $.write( :pseudo-func{ :ident<lang>, :args[ :ident<klingon> ] } )
@@ -293,16 +287,23 @@ class CSS::Writer
         $.write-num( $percent, '%' );
     }
 
+    #| !important := $.write( :prio<important> )
+    multi method write( Str :$prio! ) {
+        '!' ~ $prio.lc;
+    }
+
     #| color: red !important; := $.write( :property{ :ident<color>, :expr[ :ident<red> ], :prio<important> } )
     multi method write( Hash :$property! ) {
-        my $expr = $property<expr>:exists
-            ?? ': ' ~ $.write($property, :node<expr>)
-            !! '';
-        my $prio = $property<prio>
-            ?? ' !' ~ $property<prio>
-            !! '';
+        my @p = $.write( $property, :node<ident> );
+        @p.push: ': ' ~ $.write($property, :node<expr>)
+            if $property<expr>:exists;
+        @p.push: ' ' ~  $.write($property, :node<prio>)
+            if $property<prio>:exists;
+        @p.push: ';';
+        @p.push: ' ' ~ $.write($property, :node<comment>)
+            if $property<comment>:exists;
 
-        [~] $.write( $property, :node<ident> ), $expr, $prio, ';';
+        [~] @p;
     }
 
     #| :first := $.write: :pseudo-class<first>
