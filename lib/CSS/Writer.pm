@@ -13,8 +13,14 @@ class CSS::Writer
     has Bool $.color-masks is rw;
     has %.color-values is rw;   #- maps color names to rgb values
     has %.color-names is rw;    #- maps rgb hex codes to named colors
+    has $.ast is rw;
 
-    submethod BUILD(:$!indent='', :$!terse=False, :$!color-masks=False, :$color-names, :$color-values is copy) {
+    submethod BUILD(:$!indent='',
+                    :$!terse=False,
+                    :$!color-masks=False,
+                    :$color-names, :$color-values,
+                    :$!ast,
+        ) {
 
         sub build-color-names(%colors) {
             my %color-names;
@@ -58,6 +64,11 @@ class CSS::Writer
             }
         }
 
+    }
+
+    method Str {
+        nextsame unless $.ast.defined;
+        $.write( $.ast );
     }
 
     #| @top-left { margin: 5px; } :=   $.write( :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] } ] )
