@@ -58,7 +58,7 @@ AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar.
 
 - **`:color-values`** Convert color names to RGB values
 
-- **`:terse`** write each stylesheet element on a single line, without indentation.
+- **`:terse`** write each stylesheet element on a single line, without indentation. Don't write comments.
 
 ## Usage Notes
 
