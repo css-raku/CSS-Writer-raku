@@ -417,7 +417,7 @@ class CSS::Writer
     multi method write(List $ast, :$sep=' ') {
         my %sifted = classify { .can('exists_key') && .exists_key('comment') ?? 'comment' !! 'elem' }, $ast.list;
         my $out = (%sifted<elem> // []).list.map({ $.write( $_ ) }).join: $sep;
-        $out ~= [~] %sifted<comment>.list.map({ $.write-any-comments( $_, ' ' )})
+        $out ~= [~] %sifted<comment>.list.map({ ' ' ~ $.write($_) })
             if %sifted<comment>:exists && ! $.terse;
         $out;
     }
