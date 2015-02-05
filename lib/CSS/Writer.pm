@@ -315,7 +315,7 @@ class CSS::Writer
         ':' ~ $.write( :name($pseudo-class) );
     }
 
-    #| ::nth := $.write: :pseudo-elem<nth>
+    #| ::first-letter := $.write: :pseudo-elem<first-letter>
     multi method write( Str :$pseudo-elem! ) {
         '::' ~ $.write( :name($pseudo-elem) );
     }
