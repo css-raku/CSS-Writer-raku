@@ -272,8 +272,8 @@ class CSS::Writer
     }
 
     #| 42 := $.write( :num(42) )
-    multi method write( Numeric :$num! ) {
-        $.write-num( $num )
+    multi method write( Numeric :$num!, Any :$units? ) {
+        $.write-num( $num, $units )
     }
 
     #| ~= := $.write( :op<~=> )
