@@ -417,7 +417,7 @@ class CSS::Writer
     ## generic handling of Lists, Pairs, Hashs and Lists
 
     multi method write(List $ast, Str :$sep=' ') {
-        my Array %sifted = classify { .isa(EnumMap) && (.<comment>:exists) ?? 'comment' !! 'elem' }, $ast.list;
+        my Array %sifted = classify { .isa(Hash) && (.<comment>:exists) ?? 'comment' !! 'elem' }, $ast.list;
         my Str $out = (%sifted<elem> // []).list.map({ $.write( $_ ) }).join: $sep;
         $out ~= [~] %sifted<comment>.list.map({ ' ' ~ $.write($_) })
             if %sifted<comment>:exists && ! $.terse;
