@@ -432,8 +432,8 @@ class CSS::Writer
         $out;
     }
 
-    multi method write(Pair $ast) {
-        $.write( |%$ast );
+    multi method write(Pair $_) {
+        $.write( |(.key.subst(/':'.*/, '') => .value) );
     }
 
     multi method write(Hash $ast!, :$node! ) {
