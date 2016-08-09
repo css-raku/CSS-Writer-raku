@@ -77,11 +77,6 @@ class CSS::Writer
 
     proto method write(|c --> Str) {*}
 
-    #| @top-left { margin:5px; } :=   $.write( :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] }, ] )
-    multi method write( Str :$at-keyw!, List :$declarations! ) {
-        ($.write( :$at-keyw ),  $.write( :$declarations)).join: ' ';
-    }
-
     #| 42deg   := $.write( :angle(42), :units<deg>) or $.write( :deg(42) )
     multi method write( Numeric :$angle!, Str :$units? ) {
         $.write-num( $angle, $units );

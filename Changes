@@ -1,3 +1,6 @@
+0.02.1 Break down large `$.write` multi-method into seperate
+       `$.write-xxx` methods
+
 0.02.0 Adapt 'at-rule from CSS::Grammar 0.3.0. This replaces
        the now obselete 'margin-rule', 'media-rule' and 'margin-rule'.
 
