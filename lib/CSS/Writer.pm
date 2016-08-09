@@ -102,11 +102,6 @@ class CSS::Writer
         [~] flat '[', $attrib.map({ $.write( $_ ) }), ']';
     }
 
-    #| @charset 'utf-8';   := $.write( :charset-rule<utf-8> )
-    multi method write( Str :$charset-rule! ) {
-        [~] '@charset ', $.write( :string($charset-rule) ), ';'
-    }
-
     #| rgb(10, 20, 30) := $.write( :color[ :num(10), :num(20), :num(30) ], :units<rgb> )
     #| or $.write( :rgb[ :num(10), :num(20), :num(30) ] )
     multi method write( Any :$color!, Str :$units? ) {
@@ -173,9 +168,26 @@ class CSS::Writer
         });
     }
 
-    #| @font-face { src:'foo.ttf'; } := $.write( :fontface-rule{ :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] }, ] } )
-    multi method write( Hash :$fontface-rule! ) {
-        [~] '@font-face ', $.write( $fontface-rule, :nodes<declarations> );
+    #| @charset 'utf-8';   := $.write( :at-rule{ :at-keyw<charset>, :string<utf-8> } )
+    #| @import url('example.css') screen and (color); := $.write( :at-rule{ :at-keyw<import>, :url<example.css>, :media-list[ { :media-query[ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ] } ] } )
+    #| @font-face { src:'foo.ttf'; } := $.write( :at-rule{ :at-keyw<font-face>, :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] }, ] } )
+    #| @top-left { margin:5px; } :=   $.write( :at-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] }, ] } )
+    #| @media all { body { background:lime; }} := $.write( :at-rule{ :at-keyw<media>, :media-list[ { :media-query[ :ident<all> ] } ], :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<body> } ] } ] ], :declarations[ { :ident<background>, :expr[ :ident<lime> ] }, ] } } ]} )
+    #| @namespace svg url('http://www.w3.org/2000/svg'); := $.write( :at-rule{ :at-keyw<namespace>, :ns-prefix<svg>, :url<http://www.w3.org/2000/svg> } )
+    #| @page :first { margin:5mm; } := $.write( :at-rule{ :at-keyw<page>, :pseudo-class<first>, :declarations[ { :ident<margin>, :expr[ :mm(5) ] }, ] } )
+    multi method write( Hash :$at-rule! ) {
+        my $at-keyw =  $.write( $at-rule, :nodes<at-keyw> );
+        my $rhs = do given $at-keyw {
+            when '@charset' { $.write($at-rule, :nodes<string>, :punc<;>) }
+            when '@import' { $.write($at-rule, :nodes<url media-list>, :punc<;>) }
+            when '@media' { $.write($at-rule, :nodes<media-list rule-list>) }
+            when '@namespace' { $.write($at-rule, :nodes<ns-prefix url>, :punc<;>) }
+            when '@page' { $.write($at-rule, :nodes<pseudo-class declarations>) }
+            default {
+                $.write( $at-rule, :nodes<declarations> );
+            }
+        }
+        [ $at-keyw, $rhs ].join: ' ';
     }
 
     #| 420hz   := $.write( :freq(420), :units<hz>) or $.write( :khz(.42) )
@@ -209,11 +221,6 @@ class CSS::Writer
         [~] $pfx, $minus, $.write( :name($ident) )
     }
 
-    #| @import url('example.css') screen and (color); := $.write( :import{ :url<example.css>, :media-list[ { :media-query[ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ] } ] } )
-    multi method write( Hash :$import! ) {
-        [~] '@import ', $.write( $import, :nodes<url media-list>, :punc<;> );
-    }
-
     #| 42 := $.write: :num(42)
     multi method write( Numeric :$int! ) {
         $.write-num( $int );
@@ -227,11 +234,6 @@ class CSS::Writer
     #| 42mm   := $.write( :length(42), :units<mm>) or $.write( :mm(42) )
     multi method write( Numeric :$length!, Str :$units? ) {
         $.write-num( $length, $units );
-    }
-
-    #| @top-left { margin:5px; } :=   $.write( :margin-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] }, ] } )
-    multi method write( Hash :$margin-rule! ) {
-        $.write( $margin-rule );
     }
 
     #| projection, tv := $.write( :media-list[ :ident<projection>, :ident<tv> ] )
@@ -253,11 +255,6 @@ class CSS::Writer
         }) );
     }
 
-    #| @media all { body { background:lime; }} := $.write( :media-rule{ :media-list[ { :media-query[ :ident<all> ] } ], :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<body> } ] } ] ], :declarations[ { :ident<background>, :expr[ :ident<lime> ] }, ] } } ]} )
-    multi method write( Hash :$media-rule! ) {
-        [~] '@media ', $.write( $media-rule, :nodes<media-list rule-list> );
-    }
-
     #| hi\! := $.write( :name("hi\x021") )
     multi method write( Str :$name! ) {
         [~] $name.comb.map({
@@ -265,11 +262,6 @@ class CSS::Writer
             when /<CSS::Grammar::CSS3::regascii>/ { '\\' ~ $_ };
             default                               { .ord.fmt("\\%X ") }
         });
-    }
-
-    #| @namespace svg url('http://www.w3.org/2000/svg'); := $.write( :namespace-rule{ :ns-prefix<svg>, :url<http://www.w3.org/2000/svg> } )
-    multi method write( Hash :$namespace-rule! ) {
-        [~] '@namespace ', $.write( $namespace-rule, :nodes<ns-prefix url>, :punc<;> );
     }
 
     #| svg := $.write( :ns-prefix<svg> )
@@ -289,11 +281,6 @@ class CSS::Writer
     #| ~= := $.write( :op<~=> )
     multi method write( Str :$op! ) {
         $op.lc;
-    }
-
-    #| @page :first { margin:5mm; } := $.write( :page-rule{ :pseudo-class<first>, :declarations[ { :ident<margin>, :expr[ :mm(5) ] }, ] } )
-    multi method write( Hash :$page-rule! ) {
-    [~] '@page ', $.write( $page-rule, :nodes<pseudo-class declarations> );
     }
 
     #| 100% := $.write( :percent(100) )
@@ -423,8 +410,7 @@ class CSS::Writer
         sprintf "url(%s)", $.write-string( $url );
     }
 
-    ## generic handling of Lists, Pairs, Hashs and Lists
-
+    #! generic handling of Lists, Pairs, Hashs and Lists
     multi method write(List $ast, Str :$sep=' ') {
         my Array %sifted = classify { .isa(Hash) && (.<comment>:exists) ?? 'comment' !! 'elem' }, $ast.list;
         my Str $out = (%sifted<elem> // []).list.map({ $.write( $_ ) }).join: $sep;

@@ -1,3 +1,6 @@
+0.02.0 Adapt 'at-rule from CSS::Grammar 0.3.0. This replaces
+       the now obselete 'margin-rule', 'media-rule' and 'margin-rule'.
+
 0.01.4 Omit more spaces in :terse mode.
     -- 'color: red !import' is now 'color:red!important'
 
