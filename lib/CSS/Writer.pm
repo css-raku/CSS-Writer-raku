@@ -77,10 +77,11 @@ class CSS::Writer
 
     proto method write(|c --> Str) {*}
 
-    #| 42deg   := $.write( :angle(42), :units<deg>) or $.write( :deg(42) )
-    multi method write( Numeric :$angle!, Str :$units? ) {
-        $.write-num( $angle, $units );
-    }
+    #| 42deg   := $.write-num( 42,  'deg') or $.write( :deg(42) )
+    #| 420hz   := $.write-num( 420, 'hz')  or $.write( :khz(.42) )
+    #| 42mm    := $.write-num( 42,  'mm')  or $.write( :mm(42) )
+    #| 600dpi  := $.write-num( 600, 'dpi') or $.write( :dpi(600) )
+    #| 20s     := $.write-num( 20,  's' )  or $.write( :s(20) )
 
     #| @page   := $.write( :at-keyw<page> )
     multi method write( Str :$at-keyw! ) {
@@ -148,7 +149,7 @@ class CSS::Writer
     multi method write( List :$expr! ) {
         my $sep = '';
 
-        [~] $expr.map( -> $term is copy {
+        [~] $expr.map: -> $term is copy {
 
             $sep = '' if $term<op> && $term<op>;
 
@@ -160,7 +161,7 @@ class CSS::Writer
             my $out = $sep ~ $.write($term);
             $sep = $term<op> && $term<op> ne ',' ?? '' !! ' ';
             $out;
-        });
+        }
     }
 
     #| @charset 'utf-8';   := $.write( :at-rule{ :at-keyw<charset>, :string<utf-8> } )
@@ -183,15 +184,6 @@ class CSS::Writer
             }
         }
         [ $at-keyw, $rhs ].join: ' ';
-    }
-
-    #| 420hz   := $.write( :freq(420), :units<hz>) or $.write( :khz(.42) )
-    multi method write( Numeric :$freq!, Str :$units ) {
-        given $units {
-            when 'hz' {$.write-num( $freq, 'hz' )}
-            when 'khz' {$.write-num( $freq * 1000, 'hz' )}
-            default {die "unhandled frequency unit: $units";}
-        }
     }
 
     #| :lang(klingon) := $.write( :pseudo-func{ :ident<lang>, :args[ :ident<klingon> ] } )
@@ -224,11 +216,6 @@ class CSS::Writer
     #| color := $.write: :keyw<Color>
     multi method write( Str :$keyw! ) {
         $keyw.lc;
-    }
-
-    #| 42mm   := $.write( :length(42), :units<mm>) or $.write( :mm(42) )
-    multi method write( Numeric :$length!, Str :$units? ) {
-        $.write-num( $length, $units );
     }
 
     #| projection, tv := $.write( :media-list[ :ident<projection>, :ident<tv> ] )
@@ -280,7 +267,7 @@ class CSS::Writer
 
     #| 100% := $.write( :percent(100) )
     multi method write( Numeric :$percent! ) {
-        $.write-num( $percent, '%' );
+        $.write-num( $percent ) ~ '%';
     }
 
     #| !important := $.write( :prio<important> )
@@ -330,11 +317,6 @@ class CSS::Writer
         $out;
     }
 
-    #| 600dpi   := $.write( :resolution(600), :units<dpi>) or $.write( :dpi(600) )
-    multi method write( Numeric :$resolution!, Str :$units? ) {
-        $.write-num( $resolution, $units );
-    }
-
     #| { h1 { margin:5pt; } h2 { margin:3pt; color:red; }} := $.write( :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h1> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(5) ] }, ] } }, { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h2> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(3) ] }, { :ident<color>, :expr[ :ident<red> ] } ] } } ])
     multi method write( List :$rule-list! ) {
         '{ ' ~ $.write( $rule-list, :sep($.nl)) ~ '}';
@@ -369,11 +351,6 @@ class CSS::Writer
     multi method write( List :$stylesheet! ) {
         my $sep = $.terse ?? "\n" !! "\n\n";
         $.write( $stylesheet, :$sep);
-    }
-
-    #| 20s := $.write( :time(20), :units<s> ) or $.write( :s(20) )
-    multi method write( Numeric :$time!, Str :$units? ) {
-        $.write-num( $time, $units );
     }
 
     #| U+A?? := $.write( :unicode-range[0xA00, 0xAFF] )
@@ -443,11 +420,14 @@ class CSS::Writer
             if @args;
 
         use CSS::Grammar::AST :CSSUnits;
-        for %opts.pairs {
-            if my $type = CSSUnits.enums{.key} {
-                # e.g. redispatch $.write( :px(12) ) as $.write( :length(12), :units<px> )
-                my %new-opts = $type => .value, units => .key;
-                return $.write( |%new-opts );
+        for %opts.pairs -> \p {
+            if my $type = CSSUnits.enums{p.key} {
+                # e.g. redispatch $.write( :px(12) ) as $.write-num( 12, 'px' )
+                return do given $type {
+                    when 'percent' { $.write( :percent(p.value) )   }
+                    when 'color'   { $.write-color( p.value, p.key ) }
+                    default        { $.write-num( p.value, p.key )   }
+                }
             }
         }
         

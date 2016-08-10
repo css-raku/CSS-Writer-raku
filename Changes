@@ -1,3 +1,8 @@
+0.02.2 Added for CSS::Speficiation 0.4.1. No longer need
+       to handle :length(0), :freq(0), etc in AST. But
+       do need to remove units from zero quantities.
+       :px(0) -> '0', etc
+
 0.02.1 Break down large `$.write` multi-method into seperate
        `$.write-xxx` methods
 
