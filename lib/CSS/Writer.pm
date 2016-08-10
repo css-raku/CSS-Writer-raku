@@ -77,12 +77,6 @@ class CSS::Writer
 
     proto method write(|c --> Str) {*}
 
-    #| 42deg   := $.write-num( 42,  'deg') or $.write( :deg(42) )
-    #| 420hz   := $.write-num( 420, 'hz')  or $.write( :khz(.42) )
-    #| 42mm    := $.write-num( 42,  'mm')  or $.write( :mm(42) )
-    #| 600dpi  := $.write-num( 600, 'dpi') or $.write( :dpi(600) )
-    #| 20s     := $.write-num( 20,  's' )  or $.write( :s(20) )
-
     #| @page   := $.write-at-keyw( 'page' )
     method write-at-keyw( Str $_ ) {
         '@' ~ $.write-ident( $_ );
@@ -97,9 +91,6 @@ class CSS::Writer
     method write-attrib( List $_ ) {
         [~] flat '[', .map({ $.write( $_ ) }), ']';
     }
-
-    #| rgb(10, 20, 30) := $.write-color: [ :num(10), :num(20), :num(30) ], 'rgb'
-    #| or $.write( :rgb[ :num(10), :num(20), :num(30) ] )
 
     #| /* These are */ /* comments * / */ := $.write-comment: [ "These are", "comments */" ]
     multi method write-comment( List $_ ) {
@@ -432,6 +423,13 @@ class CSS::Writer
     method nl returns Str {
         $.terse ?? ' ' !! "\n";
     }
+
+    #| 42deg   := $.write-num( 42,  'deg') or $.write( :deg(42) )
+    #| 420hz   := $.write-num( 420, 'hz')  or $.write( :khz(.42) )
+    #| 42mm    := $.write-num( 42,  'mm')  or $.write( :mm(42) ) or $.write-mm(42)
+    #| 600dpi  := $.write-num( 600, 'dpi') or $.write( :dpi(600) )
+    #| 20s     := $.write-num( 20,  's' )  or $.write( :s(20) )
+    #| rgb(10, 20, 30) := $.write-color: [ :num(10), :num(20), :num(30) ], 'rgb' or $.write( :rgb[ :num(10), :num(20), :num(30) ] ) or $.write-rgb: [ :num(10), :num(20), :num(30) ]
 
     method FALLBACK ($meth-name, $val, |c) {
         if $meth-name ~~ /^ 'write-' (.+) $/ {
