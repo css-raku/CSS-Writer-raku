@@ -161,7 +161,7 @@ class CSS::Writer
         my $at-keyw =  $.write( $at-rule, :nodes<at-keyw> );
         my $rhs = do given $at-keyw {
             when '@charset' { $.write($at-rule, :nodes<string>, :punc<;>) }
-            when '@import' { $.write($at-rule, :nodes<url media-list>, :punc<;>) }
+            when '@import' { $.write($at-rule, :nodes<url string media-list>, :punc<;>) }
             when '@media' { $.write($at-rule, :nodes<media-list rule-list>) }
             when '@namespace' { $.write($at-rule, :nodes<ns-prefix url>, :punc<;>) }
             when '@page' { $.write($at-rule, :nodes<pseudo-class declarations>) }
