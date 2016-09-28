@@ -83,12 +83,18 @@ class CSS::Writer::BaseTypes {
 
     multi method write-color( List $ast, 'rgba' ) {
 
-        # drop the alpha channel when a == 1.0
-        return $.write-color( [ $ast[0..2] ], 'rgb' )
-            if $ast[3]<num> && $ast[3]<num> == 1.0
-            || $ast[3]<percent> && $ast[3]<percent> == 100.0;
+        my \alpha = $ast[3]<num> // $ast[3]<percent> / 100.0;
 
-        sprintf 'rgba(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
+        if alpha =~= 0.0 && %.color-names {
+            'transparent'
+        }
+        elsif alpha =~= 1.0 {
+            # drop the alpha channel
+            $.write-color( [ $ast[0..2] ], 'rgb' )
+        }
+        else {
+            sprintf 'rgba(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
+        }
     }
 
     multi method write-color(List $ast, 'hsl') {
@@ -96,11 +102,15 @@ class CSS::Writer::BaseTypes {
     }
 
     multi method write-color(List $ast, 'hsla') {
-        sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
+        my \alpha = $ast[3]<num> // $ast[3]<percent> / 100.0;
+
+        alpha =~= 0.0 && %.color-names
+            ?? 'transparent'
+            !! sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
     }
 
     multi method write-color(Str $ast, Any $) {
-        # e.g. 'transparent', 'currentcolor'
+        # e.g. 'currentcolor'
         $ast.lc;
     }
 
