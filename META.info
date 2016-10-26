@@ -1,4 +1,5 @@
 {
+    "perl"        : "6.*",
     "name"        : "CSS::Writer",
     "version"     : "0.02.3",
     "description" : "AST Serializer; compatible with CSS::Grammar and CSS::Module",
