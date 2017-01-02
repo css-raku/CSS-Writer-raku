@@ -13,17 +13,13 @@ class CSS::Writer {
     has $.ast is rw;
 
     sub build-color-names(%colors) {
-        my %color-names;
-
-        for %colors {
-            my ($name, $rgb) = .kv;
-            # output as ...gray not ...grey
-            next if $name ~~ /grey/;
-            my $hex = 256 * (256 * $rgb[0]  +  $rgb[1])  +  $rgb[2];
-            %color-names{ $hex } = $name;
-        }
-
-        return %color-names;
+        %(
+            %colors.grep({.key !~~ /grey/}).map: {
+                my (Str $name, List $rgb) = .kv;
+                my $hex = 256 * (256 * $rgb[0]  +  $rgb[1])  +  $rgb[2];
+                $hex => $name;
+            }
+        )
     }
 
     submethod TWEAK(:$color-names, :$color-values) {
@@ -312,7 +308,7 @@ class CSS::Writer {
     }
 
     #| 'I\'d like some \BEE f!' := $.write-string("I'd like some \x[bee]f!")
-    method write-string( Str $str --> Str) {
+    method write-string( Str(Any) $str --> Str) {
         [~] flat ("'",
              $str.comb.map({
                  when /<CSS::Grammar::CSS3::stringchar-regular>|\"/ {$_}
@@ -353,7 +349,7 @@ class CSS::Writer {
     }
 
     #| url('snoopy.jpg') := $.write-url: 'snoopy.jpg'
-    method write-url( Str $_ ) {
+    method write-url( $_ ) {
         sprintf "url(%s)", $.write-string( $_ );
     }
 
