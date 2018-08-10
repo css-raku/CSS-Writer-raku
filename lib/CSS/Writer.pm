@@ -542,16 +542,13 @@ class CSS::Writer {
     method FALLBACK ($meth-name, $val, |c) {
         if $meth-name ~~ /^ 'write-' (.+) $/ {
             my $units = ~$0;
-            with CSSUnits.enums{$units} -> $type {
-                my &meth = do given $type {
-                    when 'color' { method ($v, |p) { $.write-color( $v, $units, |p) } }
-                    default      { method (Numeric $v, |p) { $.write-num( $v, $units, |p) } }
-                }
-                # e.g. redispatch $.write-px( 12 ) as $.write-num( 12, 'px' )
-                self.WHAT.^add_method($meth-name, &meth);
-                return self."$meth-name"($val, |c);
+            given CSSUnits.enums{$units} {
+                when 'color' { $.write-color( $val, $units, |c) }
+                default      { $.write-num( $val, $units, |c) }
             }
         }
-        die "unknown method: $meth-name";
+        else {
+            die "unknown method: $meth-name";
+        }
     }
 }
