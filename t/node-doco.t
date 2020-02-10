@@ -4,7 +4,7 @@ use Test;
 
 ## my @docs = CSS::Writer.^methods.map({.candidates}).map({.WHY}).grep({.defined}).map({.Str});
 
-my @docs = 'lib/CSS/Writer.pm'.IO.slurp.lines.grep({ m/ '#|' \s* (.*)? $/}).map({ ~$0 });
+my @docs = 'lib/CSS/Writer.rakumod'.IO.slurp.lines.grep({ m/ '#|' \s* (.*)? $/}).map({ ~$0 });
 
 my CSS::Writer $writer .= new( :terse, :!color-masks );
 
