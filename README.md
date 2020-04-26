@@ -1,4 +1,4 @@
-# perl6-CSS-Writer
+# CSS-Writer-raku
 
 AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar.
 

@@ -11,6 +11,6 @@
   "provides": {
     "CSS::Writer": "lib/CSS/Writer.rakumod"
   },
-  "source-url": "git://github.com/p6-css/CSS-Writer-p6.git",
+  "source-url": "git://github.com/css-raku/CSS-Writer-p6.git",
   "version": "0.2.5"
 }
