@@ -1,8 +1,8 @@
 use v6;
 
-class CSS::Writer {
+class CSS::Writer:ver<0.2.6> {
 
-    use CSS::Grammar::AST;
+    use CSS::Grammar::Defs;
     use CSS::Grammar::CSS3;
     use Color::Names::CSS3 :colors;
 
@@ -404,10 +404,8 @@ class CSS::Writer {
         $.write( |%nodes );
     }
 
-    use CSS::Grammar::AST :CSSUnits;
-
     multi method write( *@args, *%opt ) is default {
-        my $key = %opt.keys.sort.first({ $.can("write-$_") || (CSSUnits.enums{$_}:exists) })
+        my $key = %opt.keys.sort.first({ $.can("write-$_") || (CSS::Grammar::Defs::CSSUnits.enums{$_}:exists) })
             or die "unable to handle {%opt.keys} struct: {%opt.perl}";
         self."write-$key"(%opt{$key}, |%opt);
     }
@@ -539,7 +537,7 @@ class CSS::Writer {
     method FALLBACK ($meth-name, $val, |c) {
         if $meth-name ~~ /^ 'write-' (.+) $/ {
             my $units = ~$0;
-            given CSSUnits.enums{$units} {
+            given CSS::Grammar::Defs::CSSUnits.enums{$units} {
                 when 'color' { $.write-color( $val, $units, |c) }
                 default      { $.write-num( $val, $units, |c) }
             }
