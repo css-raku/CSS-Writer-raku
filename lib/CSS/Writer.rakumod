@@ -8,7 +8,7 @@ class CSS::Writer:ver<0.2.6> {
 
     has Str $.indent is rw = '';
     has Bool $.terse is rw = False;
-    has Bool $.color-masks;
+    has Bool $.color-masks is rw;
     has %!color-names;    #- maps rgb hex codes to named colors
     has %!color-values;   #- maps color names to rgb values
     has $.ast is rw;
