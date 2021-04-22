@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Fix handling of color options
 
 0.2.6  2021-03-17T08:29:21+13:00
   - Renamed github project and repository

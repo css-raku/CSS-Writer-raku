@@ -8,7 +8,7 @@ class CSS::Writer:ver<0.2.6> {
 
     has Str $.indent is rw = '';
     has Bool $.terse is rw = False;
-    has Bool $.color-masks is rw = $!terse;
+    has Bool $.color-masks;
     has %!color-names;    #- maps rgb hex codes to named colors
     has %!color-values;   #- maps color names to rgb values
     has $.ast is rw;
@@ -41,11 +41,12 @@ class CSS::Writer:ver<0.2.6> {
     my subset BoolOrHash where { ($_//Bool) ~~ Bool|Hash }
     submethod TWEAK(BoolOrHash :$color-names, BoolOrHash :$color-values) {
 
-        with $color-names {
-            die ":color-names and :color-values are mutually exclusive options"
-                with $color-values;
+        die ":color-names and :color-values are mutually exclusive options"
+            if $color-names && $color-values;
 
-	    when Bool { %!color-names = build-color-names( COLORS )
+        with $color-names {
+
+	    when Bool {%!color-names = build-color-names( COLORS )
                                 if $_; }
 	    when Hash { %!color-names = build-color-names( $_ ) }
         }
@@ -56,6 +57,9 @@ class CSS::Writer:ver<0.2.6> {
                 when Hash { %!color-values = %$_ }
             }
         }
+
+        $!color-masks //= True
+            if $!terse && !(%!color-names || %!color-values);
 
     }
 
@@ -89,11 +93,9 @@ class CSS::Writer:ver<0.2.6> {
     multi method write-comment( List:D $_ ) {
         .map({ $.write-comment( $_ ) }).join: $.nl;
     }
-    multi method write-comment( Str:D $_ where /^ <CSS::Grammar::CSS3::comment> $/ ) {
-        $_;
-    }
     multi method write-comment( Str:D $_ ) {
-        [~] '/* ', .trim.subst(/'*/'/, '* /'), ' */';
+        when  /^ <CSS::Grammar::CSS3::comment> $/ { $_ }
+        default { [~] '/* ', .trim.subst(/'*/'/, '* /'), ' */'; }
     }
     multi method write-comment($) {''}
 
@@ -130,7 +132,6 @@ class CSS::Writer:ver<0.2.6> {
         my $sep = '';
 
         [~] .map: -> %term is copy {
-
             $sep = '' if %term<op>;
 
             with %term<ident> {
@@ -442,7 +443,7 @@ class CSS::Writer:ver<0.2.6> {
         # #aa77ff => #a7f
         my $reducable = [&&] @mask.map: { $_ %% 17 };
         my @hex-digits = $reducable
-            ?? @mask.map: {sprintf "%X", $_ / 17}
+            ?? @mask.map: {sprintf "%X", $_ div 17}
             !! @mask.map: {sprintf "%02X", $_ };
 
         [~] flat '#', @hex-digits;
