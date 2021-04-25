@@ -1,12 +1,13 @@
 {{$NEXT}}
   - Fix handling of color options
+  - Fix @media rule-list indentation
 
 0.2.6  2021-03-17T08:29:21+13:00
   - Renamed github project and repository
   - Moved from Raku Ecosystem to CPAN
 
 0.02.5
-    - renames sources *.pm -> *.rakumod
+  - renames sources *.pm -> *.rakumod
 
 0.02.4
     - Remove class CSS::Writer::BaseTypes

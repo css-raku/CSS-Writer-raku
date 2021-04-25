@@ -151,7 +151,7 @@ class CSS::Writer:ver<0.2.6> {
     #| @import url('example.css') screen and (color); := $.write( :at-rule{ :at-keyw<import>, :url<example.css>, :media-list[ { :media-query[ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ] } ] } )
     #| @font-face { src:'foo.ttf'; } := $.write( :at-rule{ :at-keyw<font-face>, :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] }, ] } )
     #| @top-left { margin:5px; } :=   $.write( :at-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] }, ] } )
-    #| @media all { body { background:lime; }} := $.write( :at-rule{ :at-keyw<media>, :media-list[ { :media-query[ :ident<all> ] } ], :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<body> } ] } ] ], :declarations[ { :ident<background>, :expr[ :ident<lime> ] }, ] } } ]} )
+    #| @media all { body { background:lime; } } := $.write( :at-rule{ :at-keyw<media>, :media-list[ { :media-query[ :ident<all> ] } ], :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<body> } ] } ] ], :declarations[ { :ident<background>, :expr[ :ident<lime> ] }, ] } } ]} )
     #| @namespace svg url('http://www.w3.org/2000/svg'); := $.write( :at-rule{ :at-keyw<namespace>, :ns-prefix<svg>, :url<http://www.w3.org/2000/svg> } )
     #| @page :first { margin:5mm; } := $.write( :at-rule{ :at-keyw<page>, :pseudo-class<first>, :declarations[ { :ident<margin>, :expr[ :mm(5) ] }, ] } )
     multi method write-at-rule(% (:$at-keyw! where 'charset', :$string!) ) {
@@ -301,9 +301,9 @@ class CSS::Writer:ver<0.2.6> {
         $out;
     }
 
-    #| { h1 { margin:5pt; } h2 { margin:3pt; color:red; }} := $.write-rule-list: [ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h1> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(5) ] }, ] } }, { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h2> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(3) ] }, { :ident<color>, :expr[ :ident<red> ] } ] } } ]
+    #| { h1 { margin:5pt; } h2 { margin:3pt; color:red; } } := $.write-rule-list: [ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h1> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(5) ] }, ] } }, { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h2> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(3) ] }, { :ident<color>, :expr[ :ident<red> ] } ] } } ]
     method write-rule-list(List $_) {
-        '{ ' ~ $.write( $_, :sep($.nl)) ~ '}';
+        flat('{' , .map({$.write-indented($_, 2)}), '}').join: $.nl;
     }
 
     #| a:hover { color:green; } := $.write-ruleset: { :selectors[ :selector[ { :simple-selector[ { :element-name<a> }, { :pseudo-class<hover> } ] } ] ], :declarations[ { :ident<color>, :expr[ :ident<green> ] }, ] }
@@ -415,11 +415,13 @@ class CSS::Writer:ver<0.2.6> {
 
     #| handle indentation.
     method write-indented( Any $ast, Int $indent! --> Str) {
-        my $sp = '';
-        temp $.indent;
-        $.indent ~= ' ' x $indent
-            unless $.terse;
-        $.indent ~ $.write( $ast );
+        if $!terse {
+            $.write($ast)
+        }
+        else {
+            temp $.indent ~= ' ' x $indent;
+            $.indent ~ $.write( $ast );
+        }
     }
 
     method nl returns Str {
