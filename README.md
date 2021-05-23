@@ -12,7 +12,7 @@ AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar.
 
 ```
 use CSS::Writer;
-my CSS::Writer $css-writer .= new( :terse, :color-values, :color-masks );
+my CSS::Writer $css-writer .= new( :!pretty, :color-values, :color-masks );
 say $css-writer.write(
     :ruleset{
         :selectors[ :selector[ { :simple-selector[ { :element-name<h1> } ] } ] ],
@@ -42,7 +42,7 @@ sub parse-stylesheet($css) {
     return $/.ast
 }
 
-my CSS::Writer $css-writer .= new( :terse );
+my CSS::Writer $css-writer .= new( :!pretty );
 my $stylesheet = parse-stylesheet( 'H1{  cOlor: RED; z-index  : -3}' );
 
 say $css-writer.write( $stylesheet );
@@ -64,7 +64,7 @@ say ~$css;  # output: 'Hello World!'
 
 - **`:color-values`** Convert color names to RGB values
 
-- **`:terse`** write each stylesheet element on a single line, without indentation. Don't write comments.
+- **`:!pretty`** write each stylesheet element on a single line, without indentation. Don't write comments.
 
 ## Usage Notes
 

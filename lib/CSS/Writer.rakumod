@@ -7,7 +7,7 @@ class CSS::Writer:ver<0.2.7> {
     use Color::Names::CSS3 :colors;
 
     has Str $.indent is rw = '';
-    has Bool $.terse is rw = False;
+    has Bool $.pretty is rw;
     has Bool $.color-masks is rw;
     has %!color-names;    #- maps rgb hex codes to named colors
     has %!color-values;   #- maps color names to rgb values
@@ -39,8 +39,11 @@ class CSS::Writer:ver<0.2.7> {
     }
 
     my subset BoolOrHash where { ($_//Bool) ~~ Bool|Hash }
-    submethod TWEAK(BoolOrHash :$color-names, BoolOrHash :$color-values) {
+    submethod TWEAK(BoolOrHash :$color-names, BoolOrHash :$color-values,
+                    Bool :$terse, # To be deprecated
+                   ) {
 
+        $!pretty //= !$terse;
         die ":color-names and :color-values are mutually exclusive options"
             if $color-names && $color-values;
 
@@ -59,7 +62,7 @@ class CSS::Writer:ver<0.2.7> {
         }
 
         $!color-masks //= True
-            if $!terse && !(%!color-names || %!color-values);
+            if !$!pretty && !(%!color-names || %!color-values);
 
     }
 
@@ -262,7 +265,7 @@ class CSS::Writer:ver<0.2.7> {
 
     #| color:red!important; := $.write-property: { :ident<color>, :expr[ :ident<red> ], :prio<important> }
     method write-property(% (:$ident!, :$expr, :$prio, :$comment)) {
-        my \sp = $!terse ?? '' !! ' ';
+        my \sp = $!pretty ?? ' ' !! '';
         my Str @p = $.write-ident( $ident );
         @p.push: ':' ~ sp ~ $.write-expr($_)
             with $expr;
@@ -339,7 +342,7 @@ class CSS::Writer:ver<0.2.7> {
 
     #| h1 { color:blue; } := $.write-stylesheet: [ { :ruleset{ :selectors[ { :selector[ { :simple-selector[ { :qname{ :element-name<h1> } } ] } ] } ], :declarations[ { :ident<color>, :expr[ { :ident<blue> } ] }, ] } } ]
     method write-stylesheet(List $_) {
-        my $sep = $.terse ?? "\n" !! "\n\n";
+        my $sep = $!pretty ?? "\n\n" !! "\n";
         $.write( $_, :$sep);
     }
 
@@ -377,7 +380,7 @@ class CSS::Writer:ver<0.2.7> {
         my Array %sifted = classify { .isa(Hash) && (.<comment>:exists) ?? 'comment' !! 'elem' }, $ast.list;
         my Str $out = (%sifted<elem> // []).list.map({ $.write( $_ ) }).join: $sep;
         $out ~= [~] %sifted<comment>.list.map({ ' ' ~ $.write($_) })
-            if %sifted<comment>:exists && ! $.terse;
+            if %sifted<comment>:exists && $!pretty;
         $out;
     }
 
@@ -415,17 +418,17 @@ class CSS::Writer:ver<0.2.7> {
 
     #| handle indentation.
     method write-indented( Any $ast, Int $indent! --> Str) {
-        if $!terse {
-            $.write($ast)
-        }
-        else {
+        if $!pretty {
             temp $.indent ~= ' ' x $indent;
             $.indent ~ $.write( $ast );
+        }
+        else {
+            $.write($ast)
         }
     }
 
     method nl returns Str {
-        $.terse ?? ' ' !! "\n";
+        $!pretty ?? "\n" !! ' ';
     }
 
         # -- colors -- #
@@ -536,6 +539,13 @@ class CSS::Writer:ver<0.2.7> {
     #| 42mm    := $.write-num( 42,  'mm')  or $.write( :mm(42) ) or $.write-mm(42)
     #| 600dpi  := $.write-num( 600, 'dpi') or $.write( :dpi(600) )
     #| 20s     := $.write-num( 20,  's' )  or $.write( :s(20) )
+
+    #| to be deprecated
+    method terse is rw {
+        Proxy.new:
+        FETCH => {! $!pretty},
+        STORE => -> $, $v { $!pretty = ! $v }
+    }
 
     method FALLBACK ($meth-name, $val, |c) {
         if $meth-name ~~ /^ 'write-' (.+) $/ {
