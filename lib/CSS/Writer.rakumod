@@ -89,7 +89,7 @@ class CSS::Writer:ver<0.2.7> {
 
     #| [foo]   := $.write-attrib: [ :ident<foo> ]
     method write-attrib( List $_ ) {
-        [~] flat '[', .map({ $.write( $_ ) }), ']';
+        [~] '[', slip(.map({ $.write( $_ ) })), ']';
     }
 
     #| /* These are */ /* comments * / */ := $.write-comment: [ "These are", "comments */" ]
@@ -121,7 +121,7 @@ class CSS::Writer:ver<0.2.7> {
 
     #| { font-size:12pt; color:white; } := $.write-declarations: [ { :ident<font-size>, :expr[ :pt(12) ] }, { :ident<color>, :expr[ :ident<white> ] } ]
     method write-declarations( List $_ ) {
-        (flat '{', $.write-declaration-list( $_ ), $.indent ~ '}').join: $.nl;
+        ('{', slip($.write-declaration-list( $_ )), $.indent ~ '}').join: $.nl;
     }
 
     #| h1 := $.write-element-name('H1')
@@ -306,7 +306,7 @@ class CSS::Writer:ver<0.2.7> {
 
     #| { h1 { margin:5pt; } h2 { margin:3pt; color:red; } } := $.write-rule-list: [ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h1> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(5) ] }, ] } }, { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<h2> } ] } ] ], :declarations[ { :ident<margin>, :expr[ :pt(3) ] }, { :ident<color>, :expr[ :ident<red> ] } ] } } ]
     method write-rule-list(List $_) {
-        flat('{' , .map({$.write-indented($_, 2)}), '}').join: $.nl;
+        ('{' , slip(.map({$.write-indented($_, 2)})), $.indent ~ '}').join: $.nl;
     }
 
     #| a:hover { color:green; } := $.write-ruleset: { :selectors[ :selector[ { :simple-selector[ { :element-name<a> }, { :pseudo-class<hover> } ] } ] ], :declarations[ { :ident<color>, :expr[ :ident<green> ] }, ] }
@@ -331,12 +331,12 @@ class CSS::Writer:ver<0.2.7> {
 
     #| 'I\'d like some \BEE f!' := $.write-string("I'd like some \x[bee]f!")
     method write-string( Str() $str --> Str) {
-        [~] flat ("'",
+        [~] ("'",
              $str.comb.map({
                  when /<CSS::Grammar::CSS3::stringchar-regular>|\"/ {$_}
                  when /<CSS::Grammar::CSS3::regascii>/ {'\\' ~ $_}
                  default { .ord.fmt("\\%X ") }
-             }),
+             }).Slip,
              "'");
     }
 
@@ -451,7 +451,7 @@ class CSS::Writer:ver<0.2.7> {
             ?? @mask.map: {sprintf "%X", $_ div 17}
             !! @mask.map: {sprintf "%02X", $_ };
 
-        [~] flat '#', @hex-digits;
+        [~] '#', @hex-digits.Slip;
     }
 
     #| rgb(10, 20, 30) := $.write-color: [ :num(10), :num(20), :num(30) ], 'rgb' or $.write( :rgb[ :num(10), :num(20), :num(30) ] ) or $.write-rgb: [ :num(10), :num(20), :num(30) ]
