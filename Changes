@@ -1,5 +1,7 @@
 {{$NEXT}}
-  - Fix propertyl list indentation of final '}'
+
+0.2.8  2021-09-17T08:28:46+12:00
+  - Fix property list indentation of final '{'
 
 0.2.7  2021-04-26T08:00:24+12:00
   - Fix handling of color options
