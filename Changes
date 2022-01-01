@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Streamlines writing of idents
 
 0.2.8  2021-09-17T08:28:46+12:00
   - Fix property list indentation of final '{'

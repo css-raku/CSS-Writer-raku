@@ -196,9 +196,12 @@ class CSS::Writer:ver<0.2.8> {
 
     #| -Moz-linear-gradient := $.write-ident('-Moz-linear-gradient' )
     method write-ident(Str $_ is copy) {
-        my $pfx   = s/^"-"// ?? '-' !! '';
-        my $minus = s/^"-"// ?? '\\-' !! '';
-        [~] $pfx, $minus, $.write-name( $_ )
+        if .starts-with('--') {
+            '-\\-' ~ $.write-name(.substr(2));
+        }
+        else {
+            $.write-name($_);
+        }
     }
 
     #| 42 := $.write-int(42)
@@ -385,7 +388,8 @@ class CSS::Writer:ver<0.2.8> {
     }
 
     multi method write(Pair $_) {
-        my $node = .key.subst(/':'.*/, '');
+        my $node = .key;
+        $node .= substr(0, $_) with $node.index: ':';
         self."write-$node"( .value );
     }
 
@@ -410,7 +414,7 @@ class CSS::Writer:ver<0.2.8> {
 
     multi method write( *@args, *%opt ) is default {
         my $key = %opt.keys.sort.first({ $.can("write-$_") || (CSS::Grammar::Defs::CSSUnits.enums{$_}:exists) })
-            or die "unable to handle {%opt.keys} struct: {%opt.perl}";
+            or die "unable to handle {%opt.keys} struct: {%opt.raku}";
         self."write-$key"(%opt{$key}, |%opt);
     }
 
@@ -510,7 +514,7 @@ class CSS::Writer:ver<0.2.8> {
     }
 
     multi method write-color( Any $color, Any $units ) is default {
-        die "unable to handle color: {$color.perl}, units: {$units.perl}"
+        die "unable to handle color: {$color.raku}, units: {$units.raku}"
     }
 
 
@@ -531,7 +535,7 @@ class CSS::Writer:ver<0.2.8> {
     }
 
     multi method write-num( *@args) is default {
-        die "unable to .write-num({@args.perl})";
+        die "unable to .write-num({@args.raku})";
     }
 
     #| 42deg   := $.write-num( 42,  'deg') or $.write( :deg(42) )
