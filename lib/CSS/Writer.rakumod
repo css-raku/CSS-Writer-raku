@@ -1,6 +1,6 @@
 use v6;
 
-class CSS::Writer:ver<0.2.8> {
+class CSS::Writer:ver<0.2.9> {
 
     use CSS::Grammar::Defs;
     use CSS::Grammar::CSS3;

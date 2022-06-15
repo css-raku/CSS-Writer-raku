@@ -1,5 +1,7 @@
 {{$NEXT}}
-  - Streamlines writing of idents
+
+0.2.9  2022-06-16T07:36:59+12:00
+  - Streamline writing of idents
   - Upload to zef ecosystem
 
 0.2.8  2021-09-17T08:28:46+12:00
