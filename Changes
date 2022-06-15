@@ -1,5 +1,6 @@
 {{$NEXT}}
   - Streamlines writing of idents
+  - Upload to zef ecosystem
 
 0.2.8  2021-09-17T08:28:46+12:00
   - Fix property list indentation of final '{'
@@ -17,7 +18,7 @@
 
 0.02.4
     - Remove class CSS::Writer::BaseTypes
-    - Use rakudo TWEAK object initialization phaser
+    - Use Rakudo TWEAK object initialization phaser
 
 0.02.3 Output rgba and hsla colors as 'transparent' when
        the alpha channel is 0 and :named-colors are enabled

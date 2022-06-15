@@ -49,15 +49,15 @@ class CSS::Writer:ver<0.2.8> {
 
         with $color-names {
 
-	    when Bool {%!color-names = build-color-names( COLORS )
+	    when Bool {%!color-names := build-color-names( COLORS )
                                 if $_; }
-	    when Hash { %!color-names = build-color-names( $_ ) }
+	    when Hash { %!color-names := build-color-names( $_ ) }
         }
         else {
             with $color-values {
-                when Bool { %!color-values = build-color-values( COLORS )
+                when Bool { %!color-values := build-color-values( COLORS )
                                 if $_; }
-                when Hash { %!color-values = %$_ }
+                when Hash { %!color-values := %$_ }
             }
         }
 
@@ -79,17 +79,17 @@ class CSS::Writer:ver<0.2.8> {
 
     #| @page   := $.write-at-keyw( 'page' )
     method write-at-keyw( Str $_ ) {
-        '@' ~ $.write-ident( $_ );
+        '@' ~ $.write-ident: $_;
     }
 
     #| 'foo', bar, 42 := $.write-args: [ :string<foo>, :ident<bar>, :num(42) ]
     method write-args( List $_ ) {
-        $.write( $_, :sep(', ') );
+        $.write: $_, :sep(', ');
     }
 
     #| [foo]   := $.write-attrib: [ :ident<foo> ]
     method write-attrib( List $_ ) {
-        [~] '[', slip(.map({ $.write( $_ ) })), ']';
+        [~] '[', .map({ $.write( $_ ) }).Slip, ']';
     }
 
     #| /* These are */ /* comments * / */ := $.write-comment: [ "These are", "comments */" ]
@@ -104,7 +104,7 @@ class CSS::Writer:ver<0.2.8> {
 
     #| .my-class := $.write-class( 'my-class' )
     method write-class( Str $_) {
-        '.' ~ $.write-name( $_ );
+        '.' ~ $.write-name: $_;
     }
 
     # for example, the body of an HTML style tag
@@ -121,7 +121,7 @@ class CSS::Writer:ver<0.2.8> {
 
     #| { font-size:12pt; color:white; } := $.write-declarations: [ { :ident<font-size>, :expr[ :pt(12) ] }, { :ident<color>, :expr[ :ident<white> ] } ]
     method write-declarations( List $_ ) {
-        ('{', slip($.write-declaration-list( $_ )), $.indent ~ '}').join: $.nl;
+        ('{', $.write-declaration-list( $_ ).Slip, $.indent ~ '}').join: $.nl;
     }
 
     #| h1 := $.write-element-name('H1')
@@ -172,7 +172,7 @@ class CSS::Writer:ver<0.2.8> {
     multi method write-at-rule(% (:$at-keyw! where 'page', :$pseudo-class, :$declarations) ) {
         $.write-nodes( (:$at-keyw), (:$pseudo-class), (:$declarations) )
     }
-    multi method write-at-rule(% (:$at-keyw!, :$declarations!)) is default {
+    multi method write-at-rule(% (:$at-keyw!, :$declarations!)) {
         $.write-nodes( (:$at-keyw), (:$declarations) )
     }
 
@@ -191,22 +191,22 @@ class CSS::Writer:ver<0.2.8> {
 
     #| #My-id := $.write-id( 'My-id' )
     method write-id(Str $_) {
-        '#' ~ $.write-name($_);
+        '#' ~ $.write-name: $_;
     }
 
     #| -Moz-linear-gradient := $.write-ident('-Moz-linear-gradient' )
     method write-ident(Str $_ is copy) {
         if .starts-with('--') {
-            '-\\-' ~ $.write-name(.substr(2));
+            '-\\-' ~ $.write-name: .substr: 2;
         }
         else {
-            $.write-name($_);
+            $.write-name: $_;
         }
     }
 
     #| 42 := $.write-int(42)
     method write-int( Numeric $_ ) {
-        $.write-num( $_ );
+        $.write-num: $_ ;
     }
 
     #| color := $.write-keyw('Color')
@@ -222,7 +222,7 @@ class CSS::Writer:ver<0.2.8> {
     #| screen and (color) := $.write-media-query: [ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ]
     method write-media-query( List $_ ) {
         join(' ', .map({
-            my $css = $.write( $_ );
+            my $css = $.write: $_;
 
             if .<property> {
                 # e.g. color:blue => (color:blue)
@@ -246,7 +246,7 @@ class CSS::Writer:ver<0.2.8> {
     method write-ns-prefix( Str $_) {
         when ''  {''}   # no namespace
         when '*' {'*'}  # wildcard namespace
-        default  { $.write-ident($_) }
+        default  { $.write-ident: $_ }
     }
 
     #| 42 := $.write( :num(42) )
@@ -277,22 +277,22 @@ class CSS::Writer:ver<0.2.8> {
         @p.push: ';';
         @p.push: sp ~ $.write-comment($_) with $comment;
 
-        [~] @p;
+        @p.join;
     }
 
     #| :first := $.write-pseudo-class('first')
     method write-pseudo-class(Str $_) {
-        ':' ~ $.write-name($_)
+        ':' ~ $.write-name: $_;
     }
 
     #| ::first-letter := $.write-pseudo-elem: 'first-letter'
     method write-pseudo-elem(Str $_) {
-        '::' ~ $.write-name($_)
+        '::' ~ $.write-name: $_;
     }
 
     #| :lang(klingon) := $.write-pseudo-func: { :ident<lang>, :args[ :ident<klingon> ] }
     method write-pseudo-func( Hash $_ ) {
-        ':' ~ $.write-func($_);
+        ':' ~ $.write-func: $_;
     }
 
     #| svg|circle := $.write-qname: { :ns-prefix<svg>, :element-name<circle> }
@@ -319,17 +319,17 @@ class CSS::Writer:ver<0.2.8> {
 
     #| #container * := $.write-selector: [ { :id<container>}, { :element-name<*> } ]
     method write-selector(List $_) {
-        $.write( $_ );
+        $.write: $_;
     }
 
     #| h1, [lang=en] := $.write-selectors: [ :selector[ { :simple-selector[ { :element-name<h1> } ] } ], :selector[ :simple-selector[ { :attrib[ :ident<lang>, :op<=>, :ident<en> ] } ] ] ]
     method write-selectors(List $_ ) {
-        $.write( $_, :sep(', ') );
+        $.write: $_, :sep(', ');
     }
 
     #| .foo:bar#baz := $.write-simple-selector: [ :class<foo>, :pseudo-class<bar>, :id<baz> ]
     method write-simple-selector(List $_) {
-        $.write( $_, :sep("") );
+        $.write: $_, :sep("");
     }
 
     #| 'I\'d like some \BEE f!' := $.write-string("I'd like some \x[bee]f!")
@@ -346,7 +346,7 @@ class CSS::Writer:ver<0.2.8> {
     #| h1 { color:blue; } := $.write-stylesheet: [ { :ruleset{ :selectors[ { :selector[ { :simple-selector[ { :qname{ :element-name<h1> } } ] } ] } ], :declarations[ { :ident<color>, :expr[ { :ident<blue> } ] }, ] } } ]
     method write-stylesheet(List $_) {
         my $sep = $!pretty ?? "\n\n" !! "\n";
-        $.write( $_, :$sep);
+        $.write: $_, :$sep;
     }
 
     #| U+A?? := $.write-unicode-range: [0xA00, 0xAFF]
@@ -359,8 +359,8 @@ class CSS::Writer:ver<0.2.8> {
             $range = sprintf '%x', $lo;
         }
         else {
-            my $lo-sub = $lo.subst(/0+$/, '');
-            my $hi-sub = $hi.subst(/F+$/, '');
+            my $lo-sub = $lo.subst: /0+$/, '';
+            my $hi-sub = $hi.subst: /F+$/, '';
 
             if $lo-sub eq $hi-sub {
                 $range = $hi-sub  ~ ('?' x ($hi.chars - $hi-sub.chars));
@@ -375,7 +375,7 @@ class CSS::Writer:ver<0.2.8> {
 
     #| url('snoopy.jpg') := $.write-url: 'snoopy.jpg'
     method write-url( $_ ) {
-        sprintf "url(%s)", $.write-string( $_ );
+        sprintf "url(%s)", $.write-string: $_;
     }
 
     #! generic handling of Lists, Pairs, Hashs and Lists
@@ -387,20 +387,29 @@ class CSS::Writer:ver<0.2.8> {
         $out;
     }
 
+    sub key(Str:D $k) {
+        with $k.index(':') {
+            $k.substr: 0, $_;
+        }
+        else {
+            $k;
+        }
+    }
+
     multi method write(Pair $_) {
-        my $node = .key;
-        $node .= substr(0, $_) with $node.index: ':';
+        my $node = key(.key);
         self."write-$node"( .value );
     }
 
     multi method write(Hash $ast!, :$node! ) {
-        $.write( |($node => $ast{$node} ) );
+        self."write-$node"( $ast{$node} );
     }
 
     method write-nodes(*@nodes, Str :$punc='', Str :$sep=' ', :$comments)  {
         my Str $str = @nodes.grep(*.value.defined).map({
-                          $.write( |( .key.subst(/':'.*/, '') => .value) )
-                         }).join($sep)  ~  $punc;
+            my $node := key(.key);
+            self."write-$node"(.value);
+       }).join($sep)  ~  $punc;
 
         $str ~= $.write-comment( $_ ) with $comments;
 
@@ -408,8 +417,7 @@ class CSS::Writer:ver<0.2.8> {
     }
 
     multi method write(Hash $ast! ) {
-        my %nodes =  $ast.keys.map: { .subst(/':'.*/, '') => $ast{$_} };
-        $.write( |%nodes );
+        $.write: |$ast.keys.map: { key($_) => $ast{$_} };
     }
 
     multi method write( *@args, *%opt ) is default {
