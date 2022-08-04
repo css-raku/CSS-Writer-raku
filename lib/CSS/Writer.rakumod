@@ -151,27 +151,32 @@ class CSS::Writer:ver<0.2.9> {
     }
 
     #| @charset 'utf-8';   := $.write( :at-rule{ :at-keyw<charset>, :string<utf-8> } )
-    #| @import url('example.css') screen and (color); := $.write( :at-rule{ :at-keyw<import>, :url<example.css>, :media-list[ { :media-query[ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ] } ] } )
-    #| @font-face { src:'foo.ttf'; } := $.write( :at-rule{ :at-keyw<font-face>, :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] }, ] } )
-    #| @top-left { margin:5px; } :=   $.write( :at-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] }, ] } )
-    #| @media all { body { background:lime; } } := $.write( :at-rule{ :at-keyw<media>, :media-list[ { :media-query[ :ident<all> ] } ], :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<body> } ] } ] ], :declarations[ { :ident<background>, :expr[ :ident<lime> ] }, ] } } ]} )
-    #| @namespace svg url('http://www.w3.org/2000/svg'); := $.write( :at-rule{ :at-keyw<namespace>, :ns-prefix<svg>, :url<http://www.w3.org/2000/svg> } )
-    #| @page :first { margin:5mm; } := $.write( :at-rule{ :at-keyw<page>, :pseudo-class<first>, :declarations[ { :ident<margin>, :expr[ :mm(5) ] }, ] } )
     multi method write-at-rule(% (:$at-keyw! where 'charset', :$string!) ) {
         $.write-nodes( (:$at-keyw), (:$string) ) ~ ';'
     }
+
+    #| @import url('example.css') screen and (color); := $.write( :at-rule{ :at-keyw<import>, :url<example.css>, :media-list[ { :media-query[ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ] } ] } )
     multi method write-at-rule(% (:$at-keyw! where 'import', :$url, :$string, :$media-list) ) {
         $.write-nodes( (:$at-keyw), (:$url), (:$string), (:$media-list) ) ~ ';'
     }
+
+    #| @media all { body { background:lime; } } := $.write( :at-rule{ :at-keyw<media>, :media-list[ { :media-query[ :ident<all> ] } ], :rule-list[ { :ruleset{ :selectors[ :selector[ { :simple-selector[ { :element-name<body> } ] } ] ], :declarations[ { :ident<background>, :expr[ :ident<lime> ] }, ] } } ]} )
     multi method write-at-rule(% (:$at-keyw! where 'media', :$media-list, :$rule-list) ) {
         $.write-nodes( (:$at-keyw), (:$media-list), (:$rule-list) )
     }
+
+    #| @namespace svg url('http://www.w3.org/2000/svg'); := $.write( :at-rule{ :at-keyw<namespace>, :ns-prefix<svg>, :url<http://www.w3.org/2000/svg> } )
     multi method write-at-rule(% (:$at-keyw! where 'namespace', :$ns-prefix, :$url) ) {
         $.write-nodes( (:$at-keyw), (:$ns-prefix), (:$url) ) ~ ';'
     }
+
+    #| @page :first { margin:5mm; } := $.write( :at-rule{ :at-keyw<page>, :pseudo-class<first>, :declarations[ { :ident<margin>, :expr[ :mm(5) ] }, ] } )
     multi method write-at-rule(% (:$at-keyw! where 'page', :$pseudo-class, :$declarations) ) {
         $.write-nodes( (:$at-keyw), (:$pseudo-class), (:$declarations) )
     }
+
+    #| @font-face { src:'foo.ttf'; } := $.write( :at-rule{ :at-keyw<font-face>, :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] }, ] } )
+    #| @top-left { margin:5px; } :=   $.write( :at-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] }, ] } )
     multi method write-at-rule(% (:$at-keyw!, :$declarations!)) {
         $.write-nodes( (:$at-keyw), (:$declarations) )
     }
@@ -197,7 +202,7 @@ class CSS::Writer:ver<0.2.9> {
     #| -Moz-linear-gradient := $.write-ident('-Moz-linear-gradient' )
     method write-ident(Str $_ is copy) {
         if .starts-with('--') {
-            '-\\-' ~ $.write-name: .substr: 2;
+            '-\\-' ~ $.write-name: .substr(2);
         }
         else {
             $.write-name: $_;
@@ -333,13 +338,17 @@ class CSS::Writer:ver<0.2.9> {
     }
 
     #| 'I\'d like some \BEE f!' := $.write-string("I'd like some \x[bee]f!")
+    sub escaped($_) {
+        when '"' { $_ }
+        when 32 < .ord <= 126 { '\\' ~ $_ }
+        default  { .ord.fmt("\\%X "); }
+    }
+
     method write-string( Str() $str --> Str) {
         [~] ("'",
-             $str.comb.map({
-                 when /<CSS::Grammar::CSS3::stringchar-regular>|\"/ {$_}
-                 when /<CSS::Grammar::CSS3::regascii>/ {'\\' ~ $_}
-                 default { .ord.fmt("\\%X ") }
-             }).Slip,
+             $str.subst(/<reg=CSS::Grammar::CSS3::stringchar-regular>||./, {
+                 with $<reg> { .Str } else { escaped $/.Str }
+             }, :g),
              "'");
     }
 
@@ -420,7 +429,7 @@ class CSS::Writer:ver<0.2.9> {
         $.write: |$ast.keys.map: { key($_) => $ast{$_} };
     }
 
-    multi method write( *@args, *%opt ) is default {
+    multi method write( *@args, *%opt ) {
         my $key = %opt.keys.sort.first({ $.can("write-$_") || (CSS::Grammar::Defs::CSSUnits.enums{$_}:exists) })
             or die "unable to handle {%opt.keys} struct: {%opt.raku}";
         self."write-$key"(%opt{$key}, |%opt);
@@ -447,7 +456,7 @@ class CSS::Writer:ver<0.2.9> {
     multi method coerce-color(Int :$int!)         {$int}
     multi method coerce-color(Numeric :$num!)     {+sprintf "%d", $num}
     multi method coerce-color(Numeric :$percent!) {+sprintf "%d", $percent * 2.55}
-    multi method coerce-color is default          {Any}
+    multi method coerce-color                     {Any}
 
     method color-channel($node) {
         my $num = $.coerce-color(|%$node)
@@ -521,7 +530,7 @@ class CSS::Writer:ver<0.2.9> {
         $ast.lc;
     }
 
-    multi method write-color( Any $color, Any $units ) is default {
+    multi method write-color( Any $color, Any $units ) {
         die "unable to handle color: {$color.raku}, units: {$units.raku}"
     }
 
@@ -542,7 +551,7 @@ class CSS::Writer:ver<0.2.9> {
         $int == $num ?? $int !! $num;
     }
 
-    multi method write-num( *@args) is default {
+    multi method write-num( *@args) {
         die "unable to .write-num({@args.raku})";
     }
 
@@ -553,7 +562,7 @@ class CSS::Writer:ver<0.2.9> {
     #| 20s     := $.write-num( 20,  's' )  or $.write( :s(20) )
 
     #| to be deprecated
-    method terse is rw {
+    method terse is rw is DEPRECATED<!pretty> {
         Proxy.new:
         FETCH => {! $!pretty},
         STORE => -> $, $v { $!pretty = ! $v }

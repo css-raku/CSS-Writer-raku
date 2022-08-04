@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Optimized write-string() method
 
 0.2.9  2022-06-16T07:36:59+12:00
   - Streamline writing of idents
