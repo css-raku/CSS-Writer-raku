@@ -240,11 +240,10 @@ class CSS::Writer:ver<0.2.9> {
 
     #| hi\! := $.write-name("hi\x021")
     method write-name( Str $_ ) {
-        [~] .comb.map({
-            when /<CSS::Grammar::CSS3::nmreg>/    { $_ };
-            when /<CSS::Grammar::CSS3::regascii>/ { '\\' ~ $_ };
-            default                               { .ord.fmt("\\%X ") }
-        });
+        .subst(/<reg=CSS::Grammar::CSS3::nmreg>||./,
+               {
+                   with $<reg> { .Str } else { escaped $/.Str }
+               }, :g);
     }
 
     #| svg := $.write-ns-prefix( 'svg' )
@@ -337,18 +336,27 @@ class CSS::Writer:ver<0.2.9> {
         $.write: $_, :sep("");
     }
 
-    #| 'I\'d like some \BEE f!' := $.write-string("I'd like some \x[bee]f!")
     sub escaped($_) {
-        when '"' { $_ }
-        when 32 < .ord <= 126 { '\\' ~ $_ }
-        default  { .ord.fmt("\\%X "); }
+        '\\' ~ (0x20 <= .ord <= 0x7F
+                ?? $_
+                !! .ord.fmt("%X "));
     }
 
+    sub write-string-chunk($/) {
+        with $<reg> {
+            .Str
+        }
+        else {
+            given $/.Str {
+                $_ eq '"' ?? $_ !! escaped $_
+            }
+        }
+    }
+
+    #| 'I\'d like some \BEE f!' := $.write-string("I'd like some \x[bee]f!")
     method write-string( Str() $str --> Str) {
         [~] ("'",
-             $str.subst(/<reg=CSS::Grammar::CSS3::stringchar-regular>||./, {
-                 with $<reg> { .Str } else { escaped $/.Str }
-             }, :g),
+             $str.subst(/<reg=CSS::Grammar::CSS3::stringchar-regular>||./, { write-string-chunk($/) }, :g),
              "'");
     }
 
