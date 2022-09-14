@@ -507,7 +507,6 @@ class CSS::Writer:ver<0.2.9> {
     }
 
     multi method write-color( List $ast, 'rgba' ) {
-warn $ast.raku;
         my \alpha = $ast[3]<num> // ($ast[3]<percent> // 100) / 100.0;
 
         if alpha =~= 0.0 && %!color-names {

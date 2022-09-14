@@ -38,12 +38,12 @@ for 't/write-css.json'.IO.lines {
 
     todo( $todo ) if $todo;
     is $css-writer.write( |%node ), $expected-out, "css3 $rule round trip"
-        or diag {suite => $rule, parse => ~$/, ast => $/.ast}.perl;
+        or diag {suite => $rule, parse => ~$/, ast => $/.ast}.raku;
 
     if my $terse-expected-out = %expected<!pretty> {
         temp $css-writer.pretty = False;
         is $css-writer.write( |%node ), $terse-expected-out, "css3 $rule round trip :terse"
-            or diag {suite => $rule, parse => ~$/, ast => $/.ast}.perl;
+            or diag {suite => $rule, parse => ~$/, ast => $/.ast}.raku;
     }
 }
 
