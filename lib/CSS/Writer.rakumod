@@ -487,7 +487,8 @@ class CSS::Writer:ver<0.2.9> {
     proto write-color(List $ast, Str $units --> Str) {*}
 
     multi method write-color(List $ast, 'rgb') {
-
+        return self.write-color($ast, 'rgba')
+            if $ast == 4;
         my @mask = $ast.map: { $.color-channel($_) };
 
         return if +@mask != 3 || @mask.first: {!.defined}
@@ -506,8 +507,8 @@ class CSS::Writer:ver<0.2.9> {
     }
 
     multi method write-color( List $ast, 'rgba' ) {
-
-        my \alpha = $ast[3]<num> // $ast[3]<percent> / 100.0;
+warn $ast.raku;
+        my \alpha = $ast[3]<num> // ($ast[3]<percent> // 100) / 100.0;
 
         if alpha =~= 0.0 && %!color-names {
             'transparent'
