@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Fix for Color::Names api(v2)
   - Optimized write-string() and write-name() methods
 
 0.2.9  2022-06-16T07:36:59+12:00

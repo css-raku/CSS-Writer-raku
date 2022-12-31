@@ -13,6 +13,9 @@ class CSS::Writer:ver<0.2.9> {
     has %!color-values;   #- maps color names to rgb values
     has $.ast is rw;
 
+    sub tidy-color-name($name) { $name.subst(/'-'.*/, '') }
+    constant CSS3-Colors = %( COLORS.map: { tidy-color-name(.key) => .value } );
+
     sub build-color-names(%colors) {
         %(
             %colors.kv.map: -> Str $name, %foo ( :name($), :@rgb! ) {
@@ -49,13 +52,13 @@ class CSS::Writer:ver<0.2.9> {
 
         with $color-names {
 
-	    when Bool {%!color-names := build-color-names( COLORS )
+	    when Bool {%!color-names := build-color-names( CSS3-Colors )
                                 if $_; }
 	    when Hash { %!color-names := build-color-names( $_ ) }
         }
         else {
             with $color-values {
-                when Bool { %!color-values := build-color-values( COLORS )
+                when Bool { %!color-values := build-color-values( CSS3-Colors )
                                 if $_; }
                 when Hash { %!color-values := %$_ }
             }
