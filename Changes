@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Support calc() terms within numbers
 
 0.2.10  2023-01-01T08:50:14+13:00
   - Fix for Color::Names api(v2)

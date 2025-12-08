@@ -559,8 +559,9 @@ multi method write-num( Numeric $num, Mu $units? ) {
     $int == $num ?? $int !! $num;
 }
 
-multi method write-num( *@args) {
-    die "unable to .write-num({@args.raku})";
+# -- a calc() expression where a number is expected
+multi method write-num( @term [ % ( :%func! (:ident($)! where 'calc', *%) ) ], $units) {
+    $.write-func(%func);
 }
 
 #| 42deg   := $.write-num( 42,  'deg') or $.write( :deg(42) )
