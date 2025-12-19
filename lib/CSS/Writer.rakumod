@@ -533,12 +533,12 @@ multi method write-color(List $ast, 'hsla') {
         !! sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
 }
 
-multi method write-color(Str $ast, Any $) {
+multi method write-color(Str $ast, Any $?) {
     # e.g. 'currentcolor'
     $ast.lc;
 }
 
-multi method write-color( Any $color, Any $units ) {
+multi method write-color( Any $color, Any $units? ) {
     die "unable to handle color: {$color.raku}, units: {$units.raku}"
 }
 
