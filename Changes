@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.2.12  2025-12-24T07:18:28+13:00
+  - Fix writing of named colors
+
 0.2.11  2025-12-09T08:19:55+13:00
   - Support calc() terms within numbers
 
