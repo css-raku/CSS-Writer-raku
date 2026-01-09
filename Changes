@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Whitespace pad calc() arithmetic operators
 
 0.2.12  2025-12-24T07:18:28+13:00
   - Fix writing of named colors

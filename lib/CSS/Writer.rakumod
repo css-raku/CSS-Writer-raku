@@ -10,6 +10,7 @@ has Bool $.color-masks is rw;
 has %!color-names;    #- maps rgb hex codes to named colors
 has %!color-values;   #- maps color names to rgb values
 has $.ast is rw;
+has Bool $!in-calc = False;
 
 sub tidy-color-name($name) { $name.subst(/'-'.*/, '') }
 constant CSS3-Colors = %( COLORS.map: { tidy-color-name(.key) => .value } );
@@ -183,7 +184,9 @@ multi method write-at-rule(% (:$at-keyw!, :$declarations!)) {
 }
 
 #| lang(klingon) := $.write-func: { :ident<lang>, :args[ :ident<klingon> ] }
+#| calc(40 + 2) := $.write-func: { :ident<calc>, :expr[ :num(40), :op<+>, :num(2) ] }
 method write-func(% (:$ident!, :$args, :$expr, :$comment)) {
+    temp $!in-calc = $ident eq 'calc';
     '%s(%s)%s'.sprintf(
         $.write-ident( $ident ),
         do with $args {$.write-args( $_ )}
@@ -258,7 +261,9 @@ method write-ns-prefix( Str $_) {
 
 #| ~= := $.write( :op<~=> )
 method write-op( Str $_ ) {
-    .lc;
+    $!in-calc && '+-/*'.contains($_)
+        ?? ' ' ~ $_ ~ ' '
+        !! .lc;
 }
 
 #| 100% := $.write-percent(100)
