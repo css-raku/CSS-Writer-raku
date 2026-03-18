@@ -17,7 +17,7 @@ constant CSS3-Colors = %( COLORS.map: { tidy-color-name(.key) => .value } );
 
 sub build-color-names(%colors) {
     %(
-        %colors.kv.map: -> Str $name, %foo ( :name($), :@rgb! ) {
+        %colors.kv.map: -> Str $name, % ( :name($), :@rgb! ) {
             my $hex = 256 * (256 * @rgb[0]  +  @rgb[1])  +  @rgb[2];
             $hex => $name;
         }
@@ -505,10 +505,9 @@ multi method write-color(List $ast, 'rgb') {
             if %!color-names{ $idx }:exists;
     }
 
-    my $out = self!write-rgb-mask(@mask)
-        if $!color-masks;
-
-    $out // sprintf 'rgb(%s, %s, %s)', $ast.map: { $.write( $_ )};
+    $!color-masks
+        ?? self!write-rgb-mask(@mask)
+        !! sprintf 'rgb(%s, %s, %s)', $ast.map: { $.write( $_ )};
 }
 
 multi method write-color( List $ast, 'rgba' ) {
@@ -561,7 +560,7 @@ multi method write-num( Numeric $num, Str:D $units ) {
 }
 multi method write-num( Numeric $num, Mu $units? ) {
     my $int = $num.Int;
-    $int == $num ?? $int !! $num;
+    ($int == $num ?? $int !! $num).Str;
 }
 
 # -- a calc() expression where a number is expected
@@ -574,13 +573,6 @@ multi method write-num( @term [ % ( :%func! (:ident($)! where 'calc', *%) ) ], $
 #| 42mm    := $.write-num( 42,  'mm')  or $.write( :mm(42) ) or $.write-mm(42)
 #| 600dpi  := $.write-num( 600, 'dpi') or $.write( :dpi(600) )
 #| 20s     := $.write-num( 20,  's' )  or $.write( :s(20) )
-
-#| to be deprecated
-method terse is rw is DEPRECATED<!pretty> {
-    Proxy.new:
-    FETCH => {! $!pretty},
-    STORE => -> $, $v { $!pretty = ! $v }
-}
 
 method FALLBACK ($meth-name, $val, |c) {
     if $meth-name ~~ /^ 'write-' (.+) $/ {
