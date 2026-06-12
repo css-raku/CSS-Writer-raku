@@ -11,6 +11,7 @@ has %!color-names;    #- maps rgb hex codes to named colors
 has %!color-values;   #- maps color names to rgb values
 has $.ast is rw;
 has Bool $!in-calc = False;
+has Bool $.xml is rw;
 
 sub tidy-color-name($name) { $name.subst(/'-'.*/, '') }
 constant CSS3-Colors = %( COLORS.map: { tidy-color-name(.key) => .value } );
@@ -129,7 +130,7 @@ method write-declarations( List $_ ) {
 #| h1 := $.write-element-name('H1')
 method write-element-name( Str $_ ) {
     when '*' {'*'}  # wildcard namespace
-    default  { $.write-ident( .lc ) }
+    default  { $.write-ident( $!xml ?? .Str !! .lc ) }
 }
 
 #| 'foo', bar+42 := $.write-expr: [ :string<foo>, :op<,>, :ident<bar>, :op<+>, :num(42) ]
