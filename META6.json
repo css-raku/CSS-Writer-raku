@@ -6,7 +6,7 @@
   "build-depends": [
   ],
   "depends": [
-    "CSS::Grammar:ver<0.3.11+>",
+    "CSS::Grammar:ver<0.4.3+>",
     "Color::Names",
     "JSON::Fast"
   ],

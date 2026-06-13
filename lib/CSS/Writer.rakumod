@@ -245,9 +245,9 @@ method write-media-query( List $_ ) {
 
 #| hi\! := $.write-name("hi\x021")
 method write-name( Str $_ ) {
-    .subst(/<reg=CSS::Grammar::CSS3::nmreg>||./,
+    .subst(/<!CSS::Grammar::CSS3::nmreg>./,
            {
-               with $<reg> { .Str } else { escaped $/.Str }
+               $/.Str.&escaped
            }, :g);
 }
 
@@ -349,21 +349,11 @@ sub escaped($_) {
             !! .ord.fmt("%X "));
 }
 
-sub write-string-chunk($/) {
-    with $<reg> {
-        .Str
-    }
-    else {
-        given $/.Str {
-            $_ eq '"' ?? $_ !! escaped $_
-        }
-    }
-}
-
-#| 'I\'d like some \BEE f!' := $.write-string("I'd like some \x[bee]f!")
+#| 'I\'d like some \BEE f!' := $.write-string("I'd like some ௮f!")
 method write-string( Str() $str --> Str) {
     [~] ("'",
-         $str.subst(/<reg=CSS::Grammar::CSS3::stringchar-regular>||./, { write-string-chunk($/) }, :g),
+         # allow '"' in a single quoted string, but force escaping for other ascii punctuation characters
+         $str.subst(/<!CSS::Grammar::CSS3::stringchar-printable><!["]>./, { $/.Str.&escaped }, :g),
          "'");
 }
 
