@@ -1,4 +1,4 @@
-unit class CSS::Writer:ver<0.2.15>;
+unit class CSS::Writer:ver<0.3.0>;
 
 use CSS::Grammar::Defs;
 use CSS::Grammar::CSS3;

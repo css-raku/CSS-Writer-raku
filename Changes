@@ -1,5 +1,9 @@
 {{$NEXT}}
 
+0.3.0  2026-06-14T08:28:05+12:00
+  - Avoid escaping of Unicode characters. For example write
+    'I\'d like some ௮f!' instead of 'I\'d like some \BEE f!'.
+
 0.2.15  2026-06-13T10:30:33+12:00
   - Introduce :xml option for case-sensitive writing of element
     names. 
