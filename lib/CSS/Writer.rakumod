@@ -349,7 +349,7 @@ sub escaped($_) {
             !! .ord.fmt("%X "));
 }
 
-#| 'I\'d like some \BEE f!' := $.write-string("I'd like some ௮f!")
+#| 'I\'d like some ௮f!' := $.write-string("I'd like some \x[bee]f!")
 method write-string( Str() $str --> Str) {
     [~] ("'",
          # allow '"' in a single quoted string, but force escaping for other ascii punctuation characters

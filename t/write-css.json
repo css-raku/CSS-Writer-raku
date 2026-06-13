@@ -38,7 +38,7 @@
 // [ "expr", "45dPi", { "parse" : "", "out" : "" } ]
 // <string>
 [ "expr", "'yay\\021'", { "out" : "'yay!'" } ]
-[ "expr", "'yip\\'pee\\721yi'", { "out" : "'yip\\'pee\\721 yi'" } ]
+[ "expr", "'yip\\'pee\\721yi'", { "out" : "'yip\\'peeܡyi'" } ]
 // <time>
 [ "time", "45s" ]
 // [ "time", "450ms", { "out" : ".45s" } ]
