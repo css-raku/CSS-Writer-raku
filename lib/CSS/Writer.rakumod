@@ -353,7 +353,7 @@ sub escaped($_) {
 method write-string( Str() $str --> Str) {
     [~] ("'",
          # escape "'" and "\"
-         $str.subst(/<[\'\\]>/, { '\\' ~ $/ }, :g),
+         $str.subst(/<[\'\\\n]>/, { $/.Str.&escaped }, :g),
          "'");
 }
 
