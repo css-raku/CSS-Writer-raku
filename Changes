@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.3.2  2026-06-15T06:38:50+12:00
+  - write-string() quick-fix to escape new-lines
+
 0.3.1  2026-06-15T06:08:21+12:00
   - Simplify write-string() method
 
