@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - more generally quote non-print characters in strings
 
 0.3.2  2026-06-15T06:38:50+12:00
   - write-string() quick-fix to escape new-lines
