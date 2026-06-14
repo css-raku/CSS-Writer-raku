@@ -1,5 +1,8 @@
 {{$NEXT}}
 
+0.3.1  2026-06-15T06:08:21+12:00
+  - Simplify write-string() method
+
 0.3.0  2026-06-14T08:28:05+12:00
   - Avoid escaping of Unicode characters. For example write
     'I\'d like some ௮f!' instead of 'I\'d like some \BEE f!'.
