@@ -1,5 +1,5 @@
 { "ast" : { "expr" : [ { "ident" : "_aBc0" }, { "ident" : "0abc" }, { "ident" : "-x-\"-'-\\" }, {"ident" : "--y" }, {"ident" : "temp@15°C" } ] }, "css" : "_aBc0 0abc -x-\\\"-\\'-\\\\ -\\-y temp\\@15°C" }
-{ "ast" : { "expr" : [ { "string" : "_aBc0" }, { "string" : "0abc" }, { "string" : "-x-\"-'-\\" }, {"string" : "--y\n" }, {"string" : "temp@15°C" } ] }, "css" : "'_aBc0' '0abc' '-x-\"-\\'-\\\\' '--y\\A ' 'temp@15°C'" }
+{ "ast" : { "expr" : [ { "string" : "_aBc0" }, { "string" : "0abc" }, { "string" : "-x-\"-'-\\" }, {"string" : "--y\b\n" }, {"string" : "temp@15°C" } ] }, "css" : "'_aBc0' '0abc' '-x-\"-\\'-\\\\' '--y\\8 \\A ' 'temp@15°C'" }
 {  "ast" : { "rgb" : [ { "num" : 0 }, { "num" : 133 }, { "num" : 255 } ] }, "css" : "rgb(0, 133, 255)" }
 {  "ast" : { "rgba" : [ { "num" : 255 }, { "num" : 0 }, { "num" : 0 }, { "num" : 1.0 } ] }, "css" : "rgb(255, 0, 0)", "color-names": "red" }
 {  "ast" : { "rgba" : [ { "num" : 255 }, { "num" : 0 }, { "num" : 0 }, { "num" : 0.5 } ] }, "css" : "rgba(255, 0, 0, 0.5)", "color-names" : "rgba(255, 0, 0, 0.5)" }
