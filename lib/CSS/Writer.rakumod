@@ -352,8 +352,8 @@ sub escaped($_) {
 #| 'I\'d like some ௮f!' := $.write-string("I'd like some \x[bee]f!")
 method write-string( Str() $str --> Str) {
     [~] ("'",
-         # allow '"' in a single quoted string, but force escaping for other ascii punctuation characters
-         $str.subst(/<!CSS::Grammar::CSS3::stringchar-printable><!["]>./, { $/.Str.&escaped }, :g),
+         # escape "'" and "\"
+         $str.subst(/<[\'\\]>/, { '\\' ~ $/ }, :g),
          "'");
 }
 
