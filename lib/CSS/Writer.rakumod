@@ -400,7 +400,7 @@ multi method write(List $ast, Str :$sep=' ') {
     $out;
 }
 
-sub key(Str:D $k) {
+sub type(Str:D $k) {
     with $k.index(':') {
         $k.substr: 0, $_;
     }
@@ -410,7 +410,7 @@ sub key(Str:D $k) {
 }
 
 multi method write(Pair $_) {
-    my $node = key(.key);
+    my $node = .key.&type;
     self."write-$node"( .value );
 }
 
@@ -420,7 +420,7 @@ multi method write(Hash $ast!, :$node! ) {
 
 method write-nodes(*@nodes, Str :$punc='', Str :$sep=' ', :$comments)  {
     my Str $str = @nodes.grep(*.value.defined).map({
-        my $node := key(.key);
+        my $node := .key.&type;
         self."write-$node"(.value);
    }).join($sep)  ~  $punc;
 
@@ -430,7 +430,7 @@ method write-nodes(*@nodes, Str :$punc='', Str :$sep=' ', :$comments)  {
 }
 
 multi method write(Hash $ast! ) {
-    $.write: |$ast.keys.map: { key($_) => $ast{$_} };
+    $.write: |$ast.keys.map: { .&type => $ast{$_} };
 }
 
 multi method write( *@args, *%opt ) {
@@ -517,15 +517,24 @@ multi method write-color( List $ast, 'rgba' ) {
 }
 
 multi method write-color(List $ast, 'hsl') {
-    sprintf 'hsl(%s, %s, %s)', $ast.map: {$.write( $_ )};
+    $ast == 4
+        ?? self.write-color($ast, 'hsla')
+        !! sprintf 'hsl(%s, %s, %s)', $ast.map: {$.write( $_ )};
 }
 
 multi method write-color(List $ast, 'hsla') {
-    my \alpha = $ast[3]<num> // $ast[3]<percent> / 100.0;
+    my \alpha = $ast[3]<num> // ($ast[3]<percent> // 100) / 100.0;
 
-    alpha =~= 0.0 && %!color-names
-        ?? 'transparent'
-        !! sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
+    if alpha =~= 0.0 && %!color-names {
+        'transparent'
+    }
+    elsif alpha =~= 1.0 {
+        # drop the alpha channel
+        $.write-color( $ast[0..2], 'hsl' )
+    }
+    else {
+        sprintf 'hsla(%s, %s, %s, %s)', $ast.map: {$.write( $_ )};
+    }
 }
 
 multi method write-color(Str $ast, Any $?) {
