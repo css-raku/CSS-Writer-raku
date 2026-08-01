@@ -123,18 +123,18 @@ method write-declaration-list( List $_ ) {
 }
 
 #| { font-size:12pt; color:white; } := $.write-declarations: [ { :ident<font-size>, :expr[ :pt(12) ] }, { :ident<color>, :expr[ :ident<white> ] } ]
-method write-declarations( List $_ ) {
+method write-declarations( List:D $_ ) {
     ('{', $.write-declaration-list( $_ ).Slip, $.indent ~ '}').join: $.nl;
 }
 
 #| h1 := $.write-element-name('H1')
-method write-element-name( Str $_ ) {
+method write-element-name( Str:D $_ ) {
     when '*' {'*'}  # wildcard namespace
     default  { $.write-ident( $!xml ?? .Str !! .lc ) }
 }
 
 #| 'foo', bar+42 := $.write-expr: [ :string<foo>, :op<,>, :ident<bar>, :op<+>, :num(42) ]
-method write-expr( List $_ ) {
+method write-expr( List:D $_ ) {
     my $sep = '';
 
     [~] .map: -> %term is copy {
@@ -200,12 +200,12 @@ method write-func(% (:$ident!, :$args, :$expr, :$comment)) {
 }
 
 #| #My-id := $.write-id( 'My-id' )
-method write-id(Str $_) {
+method write-id(Str:D $_) {
     '#' ~ $.write-name: $_;
 }
 
 #| -Moz-linear-gradient := $.write-ident('-Moz-linear-gradient' )
-method write-ident(Str $_ is copy) {
+method write-ident(Str:D $_ is copy) {
     if .starts-with('--') {
         '-\\-' ~ $.write-name: .substr(2);
     }
@@ -215,22 +215,22 @@ method write-ident(Str $_ is copy) {
 }
 
 #| 42 := $.write-int(42)
-method write-int( Numeric $_ ) {
+method write-int(Numeric:D $_ ) {
     $.write-num: $_ ;
 }
 
 #| color := $.write-keyw('Color')
-method write-keyw( Str $_ ) {
+method write-keyw(Str:D $_ ) {
     .lc;
 }
 
 #| projection, tv := $.write-media-list: [ :ident<projection>, :ident<tv> ]
-method write-media-list( List $_ ) {
+method write-media-list(List:D $_ ) {
     $.write( $_, :sep(', ') );
 }
 
 #| screen and (color) := $.write-media-query: [ { :ident<screen> }, { :keyw<and> }, { :property{ :ident<color> } } ]
-method write-media-query( List $_ ) {
+method write-media-query(List:D $_ ) {
     join(' ', .map({
         my $css = $.write: $_;
 
@@ -244,7 +244,7 @@ method write-media-query( List $_ ) {
 }
 
 #| hi\! := $.write-name("hi\x021")
-method write-name( Str $_ ) {
+method write-name(Str:D $_ ) {
     .subst(/<!CSS::Grammar::CSS3::nmreg>./,
            {
                $/.Str.&escaped
@@ -252,7 +252,7 @@ method write-name( Str $_ ) {
 }
 
 #| svg := $.write-ns-prefix( 'svg' )
-method write-ns-prefix( Str $_) {
+method write-ns-prefix(Str:D $_) {
     when ''  {''}   # no namespace
     when '*' {'*'}  # wildcard namespace
     default  { $.write-ident: $_ }
@@ -261,19 +261,19 @@ method write-ns-prefix( Str $_) {
 #| 42 := $.write( :num(42) )
 
 #| ~= := $.write( :op<~=> )
-method write-op( Str $_ ) {
+method write-op(Str:D $_ ) {
     $!in-calc && '+-/*'.contains($_)
         ?? ' ' ~ $_ ~ ' '
         !! .lc;
 }
 
 #| 100% := $.write-percent(100)
-method write-percent( Numeric $_ ) {
+method write-percent(Numeric:D $_ ) {
     $.write-num( $_ ) ~ '%';
 }
 
 #| !important := $.write-prio('important')
-method write-prio( Str $_ = 'important' ) {
+method write-prio(Str:D $_ = 'important' ) {
     '!' ~ .lc;
 }
 
@@ -292,17 +292,17 @@ method write-property(% (:$ident!, :$expr, :$prio, :$comment)) {
 }
 
 #| :first := $.write-pseudo-class('first')
-method write-pseudo-class(Str $_) {
+method write-pseudo-class(Str:D $_) {
     ':' ~ $.write-name: $_;
 }
 
 #| ::first-letter := $.write-pseudo-elem: 'first-letter'
-method write-pseudo-elem(Str $_) {
+method write-pseudo-elem(Str:D $_) {
     '::' ~ $.write-name: $_;
 }
 
 #| :lang(klingon) := $.write-pseudo-func: { :ident<lang>, :args[ :ident<klingon> ] }
-method write-pseudo-func( Hash $_ ) {
+method write-pseudo-func(Hash:D $_ ) {
     ':' ~ $.write-func: $_;
 }
 
@@ -329,12 +329,12 @@ method write-ruleset(% (:$selectors, :$declarations), |c) {
 }
 
 #| #container * := $.write-selector: [ { :id<container>}, { :element-name<*> } ]
-method write-selector(List $_) {
+method write-selector(List:D $_) {
     $.write: $_;
 }
 
 #| h1, [lang=en] := $.write-selectors: [ :selector[ { :simple-selector[ { :element-name<h1> } ] } ], :selector[ :simple-selector[ { :attrib[ :ident<lang>, :op<=>, :ident<en> ] } ] ] ]
-method write-selectors(List $_ ) {
+method write-selectors(List:D $_ ) {
     $.write: $_, :sep(', ');
 }
 
@@ -350,7 +350,7 @@ sub escaped($_) {
 }
 
 #| 'I\'d like some ௮f!' := $.write-string("I'd like some \x[bee]f!")
-method write-string( Str() $str --> Str) {
+method write-string(Str:D() $str --> Str) {
     [~] ("'",
          # escape "'" and "\"
          $str.subst(/<[\' \\]>|<- print>/, { $/.Str.&escaped }, :g),
@@ -358,13 +358,13 @@ method write-string( Str() $str --> Str) {
 }
 
 #| h1 { color:blue; } := $.write-stylesheet: [ { :ruleset{ :selectors[ { :selector[ { :simple-selector[ { :qname{ :element-name<h1> } } ] } ] } ], :declarations[ { :ident<color>, :expr[ { :ident<blue> } ] }, ] } } ]
-method write-stylesheet(List $_) {
+method write-stylesheet(List:D $_) {
     my $sep = $!pretty ?? "\n\n" !! "\n";
     $.write: $_, :$sep;
 }
 
 #| U+A?? := $.write-unicode-range: [0xA00, 0xAFF]
-method write-unicode-range(List $_ ) {
+method write-unicode-range(List:D $_ ) {
     my ($lo, $hi) = $_.>>.fmt("%X");
 
     my $range = do if !$lo eq $hi {
@@ -409,12 +409,12 @@ sub type(Str:D $k) {
     }
 }
 
-multi method write(Pair $_) {
+multi method write(Pair:D $_) {
     my $node = .key.&type;
     self."write-$node"( .value );
 }
 
-multi method write(Hash $ast!, :$node! ) {
+multi method write(Hash:D $ast!, :$node! ) {
     self."write-$node"( $ast{$node} );
 }
 
@@ -429,7 +429,7 @@ method write-nodes(*@nodes, Str :$punc='', Str :$sep=' ', :$comments)  {
     $str;
 }
 
-multi method write(Hash $ast! ) {
+multi method write(Hash:D $ast! ) {
     $.write: |$ast.keys.map: { .&type => $ast{$_} };
 }
 
@@ -480,9 +480,9 @@ method !write-rgb-mask( @mask ) {
 }
 
 #| rgb(10, 20, 30) := $.write-color: [ :num(10), :num(20), :num(30) ], 'rgb' or $.write( :rgb[ :num(10), :num(20), :num(30) ] ) or $.write-rgb: [ :num(10), :num(20), :num(30) ]
-proto write-color(List $ast, Str $units --> Str) {*}
+proto write-color($ast, $units --> Str) {*}
 
-multi method write-color(List $ast, 'rgb') {
+multi method write-color(List:D $ast, 'rgb') {
     return self.write-color($ast, 'rgba')
         if $ast == 4;
     my @mask = $ast.map: { $.color-channel($_) };
@@ -501,7 +501,7 @@ multi method write-color(List $ast, 'rgb') {
         !! sprintf 'rgb(%s, %s, %s)', $ast.map: { $.write( $_ )};
 }
 
-multi method write-color( List $ast, 'rgba' ) {
+multi method write-color(List:D $ast, 'rgba' ) {
     my \alpha = $ast[3]<num> // ($ast[3]<percent> // 100) / 100.0;
 
     if alpha =~= 0.0 && %!color-names {
@@ -516,13 +516,13 @@ multi method write-color( List $ast, 'rgba' ) {
     }
 }
 
-multi method write-color(List $ast, 'hsl') {
+multi method write-color(List:D $ast, 'hsl') {
     $ast == 4
         ?? self.write-color($ast, 'hsla')
         !! sprintf 'hsl(%s, %s, %s)', $ast.map: {$.write( $_ )};
 }
 
-multi method write-color(List $ast, 'hsla') {
+multi method write-color(List:D $ast, 'hsla') {
     my \alpha = $ast[3]<num> // ($ast[3]<percent> // 100) / 100.0;
 
     if alpha =~= 0.0 && %!color-names {
@@ -537,7 +537,7 @@ multi method write-color(List $ast, 'hsla') {
     }
 }
 
-multi method write-color(Str $ast, Any $?) {
+multi method write-color(Str:D $ast, Any $?) {
     # e.g. 'currentcolor'
     $ast.lc;
 }
@@ -548,17 +548,17 @@ multi method write-color( Any $color, Any $units? ) {
 
 
 # -- numbers -- #
-proto method write-num( Numeric $, $? --> Str) {*};
+proto method write-num(Numeric:D $, $? --> Str) {*};
 
 multi method write-num( 1, 'em' ) { 'em' }
 multi method write-num( 1, 'ex' ) { 'ex' }
 multi method write-num( $freq, 'khz' ) {
     $.write-num( $freq * 1000, 'hz' )
 }
-multi method write-num( Numeric $num, Str:D $units ) {
+multi method write-num(Numeric:D $num, Str:D $units ) {
     $.write-num($num) ~ ($num == 0 ?? '' !! $units.lc)
 }
-multi method write-num( Numeric $num, Mu $units? ) {
+multi method write-num(Numeric:D$num, $?) {
     my $int = $num.Int;
     ($int == $num ?? $int !! $num).Str;
 }
