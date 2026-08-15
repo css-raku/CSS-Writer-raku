@@ -174,14 +174,14 @@ multi method write-at-rule(% (:$at-keyw! where 'namespace', :$ns-prefix, :$url) 
 }
 
 #| @page :first { margin:5mm; } := $.write( :at-rule{ :at-keyw<page>, :pseudo-class<first>, :declarations[ { :ident<margin>, :expr[ :mm(5) ] }, ] } )
-multi method write-at-rule(% (:$at-keyw! where 'page', :$pseudo-class, :$declarations) ) {
-    $.write-nodes( (:$at-keyw), (:$pseudo-class), (:$declarations) )
+multi method write-at-rule(% (:$at-keyw!, :@declarations!, *%etc where .elems) ) {
+    $.write-nodes( (:$at-keyw), (|%etc), (:@declarations) );
 }
 
 #| @font-face { src:'foo.ttf'; } := $.write( :at-rule{ :at-keyw<font-face>, :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] }, ] } )
 #| @top-left { margin:5px; } :=   $.write( :at-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] }, ] } )
-multi method write-at-rule(% (:$at-keyw!, :$declarations!)) {
-    $.write-nodes( (:$at-keyw), (:$declarations) )
+multi method write-at-ruleX(% (:$at-keyw!, :@declarations!)) {
+    $.write-nodes( (:$at-keyw), (:@declarations) )
 }
 
 #| lang(klingon) := $.write-func: { :ident<lang>, :args[ :ident<klingon> ] }
