@@ -178,9 +178,14 @@ multi method write-at-rule(% (:$at-keyw!, :@declarations!, *%etc where .elems) )
     $.write-nodes( (:$at-keyw), (|%etc), (:@declarations) );
 }
 
+multi method write-at-rule(% (:$at-keyw!, :@expr!, |c), |d) {
+    my @decls = @expr.map: { $.write(|$_) };
+    $.write-at-keyw($at-keyw) ~ '{' ~ @decls.join(';') ~ '}';
+}
+
 #| @font-face { src:'foo.ttf'; } := $.write( :at-rule{ :at-keyw<font-face>, :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] }, ] } )
 #| @top-left { margin:5px; } :=   $.write( :at-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] }, ] } )
-multi method write-at-ruleX(% (:$at-keyw!, :@declarations!)) {
+multi method write-at-rule(% (:$at-keyw!, :@declarations!)) {
     $.write-nodes( (:$at-keyw), (:@declarations) )
 }
 
