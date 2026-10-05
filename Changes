@@ -1,4 +1,5 @@
 {{$NEXT}}
+  - Support some new CSS::Snapshot2026 at-rule variants.
 
 0.3.3  2026-06-15T07:20:35+12:00
   - More generally quote non-print characters in strings

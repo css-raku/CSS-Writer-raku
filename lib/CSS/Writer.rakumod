@@ -178,15 +178,16 @@ multi method write-at-rule(% (:$at-keyw!, :@declarations!, *%etc where .elems) )
     $.write-nodes( (:$at-keyw), (|%etc), (:@declarations) );
 }
 
-multi method write-at-rule(% (:$at-keyw!, :@expr!, |c), |d) {
-    my @decls = @expr.map: { $.write(|$_) };
-    $.write-at-keyw($at-keyw) ~ '{' ~ @decls.join(';') ~ '}';
-}
-
 #| @font-face { src:'foo.ttf'; } := $.write( :at-rule{ :at-keyw<font-face>, :declarations[ { :ident<src>, :expr[ :string<foo.ttf> ] }, ] } )
 #| @top-left { margin:5px; } :=   $.write( :at-rule{ :at-keyw<top-left>, :declarations[ { :ident<margin>, :expr[ :px(5) ] }, ] } )
 multi method write-at-rule(% (:$at-keyw!, :@declarations!)) {
     $.write-nodes( (:$at-keyw), (:@declarations) )
+}
+
+# attribute properties. Eg @swash { ... } in @font-feature-values
+multi method write-at-rule(% (:$at-keyw!, :@expr!, |c), |d) {
+    my @decls = @expr.map: { $.write(|$_) };
+    $.write-at-keyw($at-keyw) ~ ' { ' ~ @decls.join(' ') ~ ' }';
 }
 
 #| lang(klingon) := $.write-func: { :ident<lang>, :args[ :ident<klingon> ] }
@@ -283,9 +284,11 @@ method write-prio(Str:D $_ = 'important' ) {
 }
 
 #| color:red!important; := $.write-property: { :ident<color>, :expr[ :ident<red> ], :prio<important> }
-method write-property(% (:$ident!, :$expr, :$prio, :$comment)) {
+method write-property(% (:$ident! is copy, :$expr, :$prio, :$comment)) {
     my \sp = $!pretty ?? ' ' !! '';
-    my Str @p = $.write-ident( $ident );
+    my Str @p;
+    @p.push: '@' if $ident ~~ s/^\@//;
+    @p.push: $.write-ident( $ident );
     @p.push: ':' ~ sp ~ $.write-expr($_)
         with $expr;
     @p.push: sp ~$.write-prio($_)
