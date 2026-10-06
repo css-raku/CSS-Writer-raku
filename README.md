@@ -3,7 +3,8 @@
 
 # CSS-Writer-raku
 
-AST writer/serializer module. Compatible with CSS:Module and CSS::Grammar.
+CSS AST writer/serializer module. Compatible with CSS:Module, CSS::Grammar
+CSS::Snapshot and CSS::Writer.
 
 ## Examples
 
@@ -68,4 +69,4 @@ say ~$css;  # output: 'Hello World!'
 
 ## Usage Notes
 
-- The initial version CSS::Writer is based on the objects, values and serialization rules described in http://dev.w3.org/csswg/cssom/.
+- CSS::Writer was initially based on the objects, values and serialization rules described in http://dev.w3.org/csswg/cssom/.

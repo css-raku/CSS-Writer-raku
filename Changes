@@ -1,4 +1,6 @@
 {{$NEXT}}
+
+0.3.4  2026-10-07T08:49:48+13:00
   - Support some new CSS::Snapshot2026 at-rule variants.
 
 0.3.3  2026-06-15T07:20:35+12:00
